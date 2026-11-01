@@ -1,0 +1,25 @@
+$ mdpad login url=http://127.0.0.1:22801 name=ann password=ann-pw
+signed in to http://127.0.0.1:22801 as ann
+$ mdpad docs
+h2-4lz24qnezcs32py7vaefjh35wc  Release plan 0.4  2026-10-11 22:41 UTC  806 B  owner
+h3-7d3lhxofadkukkguzpzvwfl4cd  Reading list  2026-10-11 22:41 UTC  71 B  owner
+h1-yvodfvjkxcjmeywby47ogxkhjg  Design: search index  2026-10-11 22:41 UTC  88 B  owner
+h2-rrrurrkfcq526njyrnhqgbb74a  Onboarding checklist  2026-10-11 22:41 UTC  101 B  owner
+h2-sbllteaeep6wfvc4ueubrctsdd  Meeting notes, 6 October  2026-10-11 22:41 UTC  101 B  owner
+$ mdpad versions h2-4lz24qnezcs32py7vaefjh35wc
+2  2026-10-11 22:41 UTC  named "Before the review"  ann, ben  594 B
+1  2026-10-11 22:41 UTC  named "First draft"    534 B
+$ mdpad login url=http://127.0.0.1:22801 name=dev password=dev-pw
+signed in to http://127.0.0.1:22801 as dev
+$ mdpad cluster
+node h1  home,web,accounts
+node h2  home,web
+node h3  home,web
+node w1  web
+home h1  5 open  5 stored  16 saves/s  log 65536 KiB  18 streams
+home h2  2 open  4 stored  4 saves/s  log 65536 KiB  4 streams
+home h3  5 open  5 stored  12 saves/s  log 65536 KiB  20 streams
+web h1  8 sockets  1 users  18 streams
+web h2  0 sockets  0 users  4 streams
+web h3  16 sockets  1 users  20 streams
+web w1  8 sockets  1 users  16 streams

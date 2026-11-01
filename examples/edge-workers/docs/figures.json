@@ -1,0 +1,336 @@
+{
+ "figures": [
+  {
+   "type": "topology",
+   "name": "topology",
+   "title": "The cluster of scripts/run.sh",
+   "subtitle": "Six nodes of one binary. A node's roles decide which actors it runs.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "operator",
+       "nodes": [
+        {
+         "id": "browser",
+         "label": "browser",
+         "sub": "the console",
+         "kind": "client"
+        },
+        {
+         "id": "cli",
+         "label": "edge",
+         "sub": "command line",
+         "kind": "client"
+        }
+       ],
+       "label": "The operator"
+      },
+      {
+       "id": "callers",
+       "nodes": [
+        {
+         "id": "client",
+         "label": "HTTP client",
+         "sub": "calls a worker",
+         "kind": "client"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "control",
+       "label": "Control",
+       "nodes": [
+        {
+         "id": "c1",
+         "label": "c1",
+         "sub": "control",
+         "kind": "store",
+         "items": [
+          "Registry: registry.log",
+          "Bundles: the built code",
+          "Store: object storage",
+          "Observer, API, console",
+          "lease acceptor"
+         ]
+        }
+       ]
+      },
+      {
+       "id": "gateways",
+       "label": "Gateways g1, g2",
+       "nodes": [
+        {
+         "id": "g1",
+         "label": "g1",
+         "sub": "gateway",
+         "items": [
+          "Follower: what is deployed",
+          "Quotas",
+          "Runners: pick one",
+          "lease acceptor"
+         ]
+        },
+        {
+         "id": "g2",
+         "label": "g2",
+         "sub": "gateway",
+         "items": [
+          "Follower: what is deployed",
+          "Quotas",
+          "Runners: pick one",
+          "lease acceptor"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "runners",
+       "label": "Runners r1, r2, r3",
+       "nodes": [
+        {
+         "id": "r1",
+         "label": "r1",
+         "sub": "runner",
+         "items": [
+          "Follower, the engine",
+          "Invoker: runs workers",
+          "an Object actor per id"
+         ]
+        },
+        {
+         "id": "r2",
+         "label": "r2",
+         "sub": "runner",
+         "items": [
+          "Follower, the engine",
+          "Invoker: runs workers",
+          "an Object actor per id"
+         ]
+        },
+        {
+         "id": "r3",
+         "label": "r3",
+         "sub": "runner",
+         "items": [
+          "Follower, the engine",
+          "Invoker: runs workers",
+          "an Object actor per id"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "operator",
+     "to": "c1",
+     "label": "HTTP /api"
+    },
+    {
+     "from": "client",
+     "to": "gateways",
+     "label": "HTTP /w/<name>/"
+    },
+    {
+     "from": "control",
+     "to": "runners",
+     "label": "manifests (a stream),\nbundles in parts",
+     "from_dx": -50,
+     "to_dx": -255,
+     "label_dx": -45
+    },
+    {
+     "from": "gateways",
+     "to": "runners",
+     "label": "a request,\nits deadline",
+     "to_dx": 120
+    },
+    {
+     "from": "runners",
+     "to": "control",
+     "label": "object writes,\nlogs/<runner>",
+     "dashed": true,
+     "from_dx": -145,
+     "to_dx": 50,
+     "label_dx": 45
+    }
+   ],
+   "note": "A seed server, not drawn, lets the nodes find each other. The gateways follow the manifests too."
+  },
+  {
+   "type": "terminal",
+   "name": "deploy",
+   "title": "Deploy a worker and a Durable Object, then call them",
+   "file": "docs/term/deploy.txt"
+  },
+  {
+   "type": "bars",
+   "name": "objects-latency",
+   "title": "Durable Objects: latency below their limit",
+   "subtitle": "The counter template through g1, as edge load measures a whole answer.",
+   "unit": "ms",
+   "categories": [
+    "one object, 200 POSTs a second",
+    "one object, 200 GETs a second",
+    "one object, 500 POSTs a second",
+    "one object, 1000 POSTs a second",
+    "1000 objects, each one's first request",
+    "1000 objects, 1000 POSTs a second",
+    "1000 objects, 2000 POSTs a second",
+    "1000 objects, 3000 POSTs a second",
+    "1000 objects, 4000 POSTs a second"
+   ],
+   "series": [
+    {
+     "name": "p50",
+     "values": [
+      "1.16",
+      "0.88",
+      "1.04",
+      "1.17",
+      "1.57",
+      "1.38",
+      "1.58",
+      "1.78",
+      "1.93"
+     ]
+    },
+    {
+     "name": "p99",
+     "values": [
+      "1.47",
+      "1.23",
+      "1.48",
+      "2.15",
+      "1.92",
+      "1.69",
+      "2.08",
+      "2.50",
+      "2.46"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "objects-limit",
+   "title": "Durable Objects: past their limit",
+   "subtitle": "POSTs sent a second, and those answered 200 a second. The rest were 503 busy.",
+   "unit": "",
+   "axis": "requests a second",
+   "categories": [
+    "one object, 1500 sent",
+    "one object, 2000 sent",
+    "one object, 3000 sent",
+    "one object, 4000 sent",
+    "1000 objects, 6000 sent",
+    "1000 objects, 8000 sent"
+   ],
+   "series": [
+    {
+     "name": "sent",
+     "values": [
+      1500,
+      2000,
+      3000,
+      4000,
+      6000,
+      8000
+     ]
+    },
+    {
+     "name": "answered 200",
+     "values": [
+      1378,
+      1391,
+      1337,
+      1303,
+      4874,
+      4703
+     ]
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "engine-throughput",
+   "title": "The engine alone: requests a second",
+   "subtitle": "A new instance per request, called in process: no HTTP, no actor, no network.",
+   "unit": "requests/s",
+   "categories": [
+    "hello",
+    "json",
+    "hello, keep_resident 0"
+   ],
+   "series": [
+    {
+     "name": "one thread",
+     "values": [
+      6566,
+      4935,
+      2585
+     ]
+    },
+    {
+     "name": "24 threads",
+     "values": [
+      57217,
+      42024,
+      15542
+     ]
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "deploy-times",
+   "title": "The engine: start, deploy and load",
+   "subtitle": "The engine alone. A deploy compiles all of SpiderMonkey again; a node loads the result.",
+   "unit": "s",
+   "categories": [
+    "engine start, cold compile cache",
+    "engine start, warm cache",
+    "deploy, 24 compile threads",
+    "deploy, one compile thread",
+    "load on a node new to it",
+    "load from the node's cache"
+   ],
+   "series": [
+    {
+     "name": "time",
+     "values": [
+      "0.95",
+      "0.17",
+      {
+       "v": [
+        0.94,
+        1.02
+       ],
+       "label": "0.98 s median (0.94 to 1.02)"
+      },
+      {
+       "v": 6.8,
+       "label": "6.8 s median"
+      },
+      "0.78",
+      {
+       "v": 0.064,
+       "label": "64 ms"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

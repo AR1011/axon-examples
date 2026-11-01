@@ -1,0 +1,186 @@
+{
+  "figures": [
+    {
+      "type": "topology",
+      "name": "topology",
+      "title": "The four processes of run.sh",
+      "subtitle": "Trades flow down from Binance. A session's first candle request starts the sampler on a processor.",
+      "gap": 64,
+      "layers": [
+        {
+          "groups": [
+            {
+              "id": "g-binance",
+              "x": 220,
+              "nodes": [
+                {
+                  "id": "binance",
+                  "label": "Binance futures",
+                  "sub": "aggTrade, 5 symbols",
+                  "kind": "external"
+                }
+              ]
+            },
+            {
+              "id": "g-consul",
+              "x": 650,
+              "nodes": [
+                {
+                  "id": "consul",
+                  "label": "Consul",
+                  "sub": "used by every node",
+                  "kind": "external",
+                  "items": [
+                    "discovery",
+                    "leases of keyed actors"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groups": [
+            {
+              "id": "g-consumer",
+              "x": 200,
+              "nodes": [
+                {
+                  "id": "consumer",
+                  "label": "consumer",
+                  "sub": "role=consumer",
+                  "items": [
+                    "Binance actor",
+                    "origin of trades/<symbol>"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "g-console",
+              "x": 650,
+              "nodes": [
+                {
+                  "id": "console",
+                  "label": "console",
+                  "sub": "port 8080",
+                  "items": [
+                    "metrics collector",
+                    "axon's console"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groups": [
+            {
+              "id": "g-ws",
+              "x": 60,
+              "nodes": [
+                {
+                  "id": "ws",
+                  "label": "ws",
+                  "sub": "port 9000",
+                  "items": [
+                    "Session actor per client",
+                    "relays both streams"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "g-processor",
+              "x": 400,
+              "nodes": [
+                {
+                  "id": "processor",
+                  "label": "processor",
+                  "sub": "role=processor",
+                  "items": [
+                    "Sampler per <symbol>:<tf>",
+                    "origin of candles/<symbol>:<tf>"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "g-clickhouse",
+              "x": 660,
+              "nodes": [
+                {
+                  "id": "clickhouse",
+                  "label": "ClickHouse",
+                  "sub": "metrics history",
+                  "kind": "external"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "groups": [
+            {
+              "id": "g-clients",
+              "x": 60,
+              "nodes": [
+                {
+                  "id": "clients",
+                  "label": "WebSocket clients",
+                  "sub": "load, websocat",
+                  "kind": "client"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "from": "binance",
+          "to": "consumer",
+          "label": "WebSocket"
+        },
+        {
+          "from": "consumer",
+          "to": "processor",
+          "label": "trades/<symbol>",
+          "label_dx": 30
+        },
+        {
+          "from": "consumer",
+          "to": "ws",
+          "label": "trades/<symbol>",
+          "label_dx": -30
+        },
+        {
+          "from": "processor",
+          "to": "ws",
+          "label": "candles/<symbol>:<tf>",
+          "label_dy": -14
+        },
+        {
+          "from": "ws",
+          "to": "processor",
+          "label": "keyed request:\nstarts the sampler",
+          "dashed": true,
+          "bend": 36,
+          "label_dy": 30
+        },
+        {
+          "from": "ws",
+          "to": "clients",
+          "label": "JSON frames",
+          "both": true
+        },
+        {
+          "from": "console",
+          "to": "clickhouse",
+          "label": "history"
+        }
+      ],
+      "note": "The console pulls telemetry from every node. The cluster has no storage of its own: candles live in the samplers' memory."
+    }
+  ]
+}

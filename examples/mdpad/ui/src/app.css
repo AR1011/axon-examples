@@ -1,0 +1,193 @@
+@source "../node_modules/@cloudflare/kumo/dist/**/*.{js,jsx,ts,tsx}";
+@import "@cloudflare/kumo/styles/tailwind";
+@import "tailwindcss";
+@source not "../dist";
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--color-kumo-canvas);
+    color: var(--text-color-kumo-default);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+    }
+  }
+}
+
+/* The text editor. */
+.cm-editor {
+  height: 100%;
+  font-size: 14px;
+}
+.cm-editor.cm-focused {
+  outline: none;
+}
+.cm-editor .cm-scroller {
+  font-family: var(--font-mono);
+  line-height: 1.6;
+}
+.cm-editor .cm-content {
+  padding: 16px 0 48px;
+}
+.cm-editor .cm-line {
+  padding: 0 20px;
+}
+/* A version's removed lines, in line with the others. */
+.cm-editor .cm-deletedChunk {
+  padding: 0 20px;
+}
+
+/* Another person's caret and selection, in the colour the server gave them. The name shows while the caret moves
+   and on hover. */
+.md-caret {
+  position: relative;
+  margin: 0 -1px;
+  border-left: 2px solid;
+}
+.md-caret::before {
+  content: "";
+  position: absolute;
+  inset: -4px -5px;
+}
+.md-caret-tag {
+  position: absolute;
+  bottom: 100%;
+  left: -2px;
+  z-index: 10;
+  padding: 0 4px;
+  border-radius: 3px 3px 3px 0;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.md-caret-recent .md-caret-tag,
+.md-caret:hover .md-caret-tag {
+  opacity: 1;
+}
+
+/* The preview: the rendered Markdown. */
+.md-preview {
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.md-preview > :first-child {
+  margin-top: 0;
+}
+.md-preview :is(h1, h2, h3, h4, h5, h6) {
+  margin: 1.4em 0 0.5em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.md-preview h1 {
+  font-size: 1.8em;
+}
+.md-preview h2 {
+  font-size: 1.4em;
+}
+.md-preview h3 {
+  font-size: 1.15em;
+}
+.md-preview :is(p, ul, ol, pre, table, blockquote) {
+  margin: 0 0 1em;
+}
+.md-preview :is(ul, ol) {
+  padding-left: 1.6em;
+}
+.md-preview ul {
+  list-style: disc;
+}
+.md-preview ol {
+  list-style: decimal;
+}
+.md-preview .task-list-item {
+  list-style: none;
+}
+.md-preview .task-list-item input {
+  margin: 0 0.4em 0 -1.4em;
+}
+.md-preview a {
+  color: var(--text-color-kumo-link);
+  text-decoration: underline;
+}
+.md-preview code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  background: var(--color-kumo-recessed);
+}
+.md-preview pre {
+  overflow-x: auto;
+  padding: 12px 14px;
+  border-radius: 6px;
+  background: var(--color-kumo-recessed);
+}
+.md-preview pre code {
+  padding: 0;
+  background: none;
+}
+.md-preview blockquote {
+  padding-left: 1em;
+  border-left: 3px solid var(--color-kumo-line);
+  color: var(--text-color-kumo-subtle);
+}
+.md-preview table {
+  border-collapse: collapse;
+}
+.md-preview :is(th, td) {
+  padding: 4px 10px;
+  border: 1px solid var(--color-kumo-line);
+}
+.md-preview img {
+  max-width: 100%;
+}
+.md-preview hr {
+  margin: 1.5em 0;
+  border: 0;
+  border-top: 1px solid var(--color-kumo-line);
+}
+
+/* Code in the preview, coloured by highlight.js. `light-dark()` follows the page's mode. */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in {
+  color: light-dark(#cf222e, #ff7b72);
+}
+.hljs-string,
+.hljs-attr,
+.hljs-regexp {
+  color: light-dark(#0a3069, #a5d6ff);
+}
+.hljs-number,
+.hljs-literal {
+  color: light-dark(#0550ae, #79c0ff);
+}
+.hljs-title,
+.hljs-section {
+  color: light-dark(#8250df, #d2a8ff);
+}
+.hljs-type,
+.hljs-variable {
+  color: light-dark(#953800, #ffa657);
+}
+.hljs-comment,
+.hljs-quote {
+  color: light-dark(#6e7781, #8b949e);
+}

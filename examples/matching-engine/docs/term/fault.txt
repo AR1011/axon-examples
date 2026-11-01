@@ -1,0 +1,35 @@
+$ examples/matching-engine/fault.sh /tmp/me-fault > fault.txt 2>&1
+$ grep -E '^t=|without|^ "(resent|found|unresolved|busy|verified)"' fault.txt | cut -c1-104
+t=10 SIGKILL e2 (pid 1080733), the owner of HOT
+t=25 SIGSTOP e3 (pid 1080734), the owner of HOT now
+t=37 SIGCONT e3
+t= 1 HOT e2 epoch 1791757967515686                accepted/s AAA  15930 BBB  13108 CCC  13202 HOT 147238
+t=11 HOT no answer: Moving("Spawn(Held, \"e2\")") accepted/s AAA  39820 BBB  35210 CCC  35020 HOT  12462
+t=12 HOT no answer: Moving("Spawn(Held, \"e2\")") accepted/s AAA  28052 BBB  24847 CCC  24563 HOT      0
+t=13 HOT no answer: Moving("Spawn(Held, \"e2\")") accepted/s AAA  25038 BBB  22612 CCC  22349 HOT      0
+t=14 HOT no answer: Moving("Spawn(Held, \"e2\")") accepted/s AAA  26966 BBB  23529 CCC  23562 HOT      0
+t=15 HOT no answer: Moving("Spawn(Held, \"e2\")") accepted/s AAA  29733 BBB  26060 CCC  25874 HOT      0
+t=16 HOT e3 epoch 1791757983517500                accepted/s AAA  26259 BBB  23649 CCC  24095 HOT      0
+t=26 HOT no answer: Unknown("Call(Timeout)")      accepted/s AAA  47704 BBB   1068 CCC   1068 HOT  13077
+t=27 HOT no answer: Unknown("Call(Timeout)")      accepted/s AAA  31886 BBB      0 CCC      0 HOT      0
+t=28 HOT no answer: Unknown("Call(Timeout)")      accepted/s AAA  33335 BBB      0 CCC      0 HOT      0
+t=29 HOT no answer: Unknown("Call(Timeout)")      accepted/s AAA  33016 BBB      0 CCC      0 HOT      0
+t=30 HOT no answer: Busy                          accepted/s AAA  30340 BBB      0 CCC      0 HOT      0
+t=31 HOT no answer: Busy                          accepted/s AAA  31545 BBB  10995 CCC      0 HOT      0
+t=32 HOT no answer: Busy                          accepted/s AAA  27516 BBB  27736 CCC      0 HOT      0
+t=33 HOT no answer: Busy                          accepted/s AAA  27711 BBB  27818 CCC      0 HOT      0
+t=34 HOT no answer: Busy                          accepted/s AAA  22791 BBB  22987 CCC  14253 HOT      0
+t=35 HOT e5 epoch 1791758001293601                accepted/s AAA   7158 BBB   7168 CCC   8233 HOT  42687
+t=38 HOT no answer: Busy                          accepted/s AAA  28905 BBB  21623 CCC  23149 HOT  52919
+t=39 HOT e3 epoch 1791758005212505                accepted/s AAA   8611 BBB   4759 CCC   4697 HOT  37965
+HOT without an answer at t = [11, 12, 13, 14, 15, 26, 27, 28, 29, 30, 31, 32, 33, 34, 38]
+ "busy": 0,
+ "found": 8,
+ "hot_longest_without_an_accept_ms": 9406,
+ "resent": 614,
+ "unresolved": 0,
+ "verified": true
+$ grep -E '"(replay_matches|acked_not_journaled|md_view_matches_book)"' fault.txt | sort | uniq -c
+      4    "acked_not_journaled": 0,
+      1  "md_view_matches_book": true,
+      4    "replay_matches": true,

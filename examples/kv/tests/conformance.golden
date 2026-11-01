@@ -1,0 +1,22 @@
+{"case":"arity","redis":{"closed":false,"replies":"-ERR wrong number of arguments for 'get' command\r\n-ERR wrong number of arguments for 'set' command\r\n-ERR wrong number of arguments for 'echo' command\r\n-ERR wrong number of arguments for 'mset' command\r\n-CROSSSLOT Keys in request don't hash to the same slot\r\n-ERR wrong number of arguments for 'del' command\r\n"}}
+{"case":"bulk_length","redis":{"closed":true,"replies":"-ERR Protocol error: invalid bulk length\r\n"}}
+{"case":"client","redis":{"closed":false,"replies":"+OK\r\n"}}
+{"case":"cluster_shards","redis":{"closed":false,"replies":"*1\r\n*4\r\n$5\r\nslots\r\n*2\r\n:0\r\n:16383\r\n$5\r\nnodes\r\n*1\r\n*14\r\n$2\r\nid\r\n$1\r\n*\r\n$4\r\nport\r\n$1\r\n*\r\n$2\r\nip\r\n$1\r\n*\r\n$8\r\nendpoint\r\n$1\r\n*\r\n$4\r\nrole\r\n$6\r\nmaster\r\n$18\r\nreplication-offset\r\n$1\r\n*\r\n$6\r\nhealth\r\n$6\r\nonline\r\n-ERR wrong number of arguments for 'cluster|shards' command\r\n"}}
+{"case":"crossslot","redis":{"closed":false,"replies":"-CROSSSLOT Keys in request don't hash to the same slot\r\n-CROSSSLOT Keys in request don't hash to the same slot\r\n-CROSSSLOT Keys in request don't hash to the same slot\r\n-CROSSSLOT Keys in request don't hash to the same slot\r\n"}}
+{"case":"dbsize","redis":{"closed":false,"replies":":6\r\n"}}
+{"case":"del_exists","redis":{"closed":false,"replies":"+OK\r\n+OK\r\n:3\r\n:1\r\n:0\r\n"}}
+{"case":"expected_dollar","redis":{"closed":true,"replies":"-ERR Protocol error: expected '$', got 'P'\r\n"}}
+{"case":"flushall","redis":{"closed":false,"replies":"+OK\r\n"}}
+{"case":"flushdb","redis":{"closed":false,"replies":"+OK\r\n:0\r\n"}}
+{"case":"inline","redis":{"closed":false,"replies":"+OK\r\n$3\r\nx y\r\n+PONG\r\n"}}
+{"case":"inline_empty_lines","redis":{"closed":false,"replies":"+PONG\r\n"}}
+{"case":"inline_too_big","redis":{"closed":true,"replies":"-ERR Protocol error: too big inline request\r\n"}}
+{"case":"keyslot","redis":{"closed":false,"replies":":12182\r\n:3443\r\n"}}
+{"case":"mset_mget","redis":{"closed":false,"replies":"+OK\r\n*3\r\n$1\r\n1\r\n$1\r\n2\r\n$-1\r\n"}}
+{"case":"multibulk_length","redis":{"closed":true,"replies":"-ERR Protocol error: invalid multibulk length\r\n"}}
+{"case":"overwrite","redis":{"closed":false,"replies":"+OK\r\n$1\r\n2\r\n"}}
+{"case":"ping","redis":{"closed":false,"replies":"+PONG\r\n$5\r\nhello\r\n$3\r\na b\r\n"}}
+{"case":"quit","redis":{"closed":true,"replies":"+OK\r\n"}}
+{"case":"set_get","redis":{"closed":false,"replies":"+OK\r\n$1\r\n1\r\n$-1\r\n+OK\r\n$0\r\n\r\n"}}
+{"case":"unbalanced_quotes","redis":{"closed":true,"replies":"-ERR Protocol error: unbalanced quotes in request\r\n"}}
+{"case":"unknown","redis":{"closed":false,"replies":"-ERR unknown command 'FOO', with args beginning with: 'bar' 'baz' \r\n-ERR unknown command 'FOO', with args beginning with: \r\n"}}

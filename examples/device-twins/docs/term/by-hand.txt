@@ -1,0 +1,13 @@
+$ NODE_ID=alerts target/release/device-twins alerts
+READY {"node":"alerts","seed":"127.0.0.1:34279","udp":null,"http":"127.0.0.1:36835"}
+$ NODE_ID=twin-1 SEEDS=127.0.0.1:34279 target/release/device-twins twin
+READY {"node":"twin-1","seed":null,"udp":"127.0.0.1:34336","http":"127.0.0.1:46707"}
+$ python3 -c "..."   # device 7 sends readings 1 to 4: 21.5, 91.0, 92.5, 90.0
+41000000000000000700000001
+41000000000000000700000002
+41000000000000000700000003
+41000000000000000700000004
+$ curl -s 127.0.0.1:46707/devices/7 | jq -c '{node, last_seq, temperature, min, max, mean, alert, raised}'
+{"node":"twin-1","last_seq":4,"temperature":90.0,"min":21.5,"max":92.5,"mean":73.75,"alert":true,"raised":1}
+$ curl -s 127.0.0.1:36835/stats | jq -c .alerts
+{"raised":1,"cleared":0,"resets":0,"malformed":0,"following":["twin-1"]}

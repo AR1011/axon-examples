@@ -1,0 +1,6 @@
+# Every channel is bounded, as in axon.
+allow-unwrap-in-tests = true
+disallowed-methods = [
+  { path = "tokio::sync::mpsc::unbounded_channel", reason = "every queue is bounded: size it and handle Full (axon README rule 11)" },
+  { path = "std::sync::mpsc::channel", reason = "every queue is bounded: use sync_channel or a tokio bounded channel" },
+]

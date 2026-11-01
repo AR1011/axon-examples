@@ -1,0 +1,242 @@
+{
+ "figures": [
+  {
+   "type": "terminal",
+   "name": "fault-run",
+   "title": "fault.sh on an EPYC 4484PX box",
+   "file": "docs/term/fault.txt",
+   "max_lines": 40
+  },
+  {
+   "type": "topology",
+   "name": "topology",
+   "title": "The cluster of fault.sh",
+   "subtitle": "Seven processes on loopback. Each engine is a lease acceptor. The books are where the fault run starts them.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "client",
+       "nodes": [
+        {
+         "id": "load",
+         "label": "load",
+         "sub": "role=client",
+         "items": [
+          "32 traders on HOT",
+          "1 trader per other symbol",
+          "market-data view of HOT"
+         ]
+        }
+       ]
+      },
+      {
+       "id": "seeds",
+       "nodes": [
+        {
+         "id": "seed",
+         "label": "seed",
+         "sub": "seed server",
+         "items": [
+          "who is in the cluster"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "engines",
+       "label": "Engines e1 to e5, role=engine",
+       "nodes": [
+        {
+         "id": "e1",
+         "label": "e1",
+         "sub": "engine",
+         "items": [
+          "no book"
+         ]
+        },
+        {
+         "id": "e2",
+         "label": "e2",
+         "sub": "engine",
+         "items": [
+          "book HOT",
+          "stream md/HOT"
+         ]
+        },
+        {
+         "id": "e3",
+         "label": "e3",
+         "sub": "engine",
+         "items": [
+          "books BBB, CCC",
+          "their md streams"
+         ]
+        },
+        {
+         "id": "e4",
+         "label": "e4",
+         "sub": "engine",
+         "items": [
+          "book AAA",
+          "stream md/AAA"
+         ]
+        },
+        {
+         "id": "e5",
+         "label": "e5",
+         "sub": "engine",
+         "items": [
+          "no book"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "disk",
+       "nodes": [
+        {
+         "id": "journal",
+         "label": "journal directory",
+         "sub": "one, shared by the engines",
+         "kind": "store",
+         "items": [
+          "<symbol>/<epoch>.log",
+          "<symbol>/<epoch>.seal"
+         ]
+        },
+        {
+         "id": "leases",
+         "label": "lease logs",
+         "sub": "one per acceptor",
+         "kind": "store",
+         "items": [
+          "leases/<engine id>/"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "load",
+     "to": "engines",
+     "label": "orders, cancels, snapshots:\na keyed request to the book",
+     "from_dx": -50,
+     "to_dx": -200,
+     "label_dx": -105
+    },
+    {
+     "from": "e2",
+     "to": "load",
+     "label": "md/HOT stream:\ntrades, level changes",
+     "dashed": true,
+     "to_dx": 20,
+     "label_dx": 75
+    },
+    {
+     "from": "seed",
+     "to": "engines",
+     "label": "discovery",
+     "dashed": true,
+     "to_dx": 200
+    },
+    {
+     "from": "engines",
+     "to": "journal",
+     "label": "append each turn;\nseal and replay at a new owner",
+     "to_dx": -20
+    },
+    {
+     "from": "engines",
+     "to": "leases",
+     "label": "Paxos lease\nper symbol",
+     "from_dx": 150
+    }
+   ],
+   "gap": 84
+  },
+  {
+   "type": "bars",
+   "name": "latency",
+   "title": "Order to ack, accepted orders",
+   "subtitle": "Closed loop, loopback, journal write included, no fsync. A shared 24-thread dev box.",
+   "categories": [
+    "steady, 20 s, 3 engines",
+    "fault, 50 s, 5 engines",
+    "fault, rerun, 5 engines",
+    "fault, independent run"
+   ],
+   "series": [
+    {
+     "name": "p50",
+     "values": [
+      "169",
+      "120",
+      "133",
+      "124"
+     ]
+    },
+    {
+     "name": "p99",
+     "values": [
+      "606",
+      "282",
+      "378",
+      "334"
+     ]
+    }
+   ],
+   "unit": "us"
+  },
+  {
+   "type": "bars",
+   "name": "dark",
+   "title": "How long HOT had no answer",
+   "subtitle": "From the one-second lines of two fault runs, at or just before commit cbbb3f4, before a later fix.",
+   "categories": [
+    "after SIGKILL of its owner",
+    "after SIGSTOP of its next owner"
+   ],
+   "series": [
+    {
+     "name": "the builder's run (fault2)",
+     "values": [
+      {
+       "v": 5,
+       "label": "about 5 s"
+      },
+      {
+       "v": 9,
+       "label": "about 9 s"
+      }
+     ]
+    },
+    {
+     "name": "independent run",
+     "values": [
+      {
+       "v": 5,
+       "label": "about 5 s (t=11-15)"
+      },
+      {
+       "v": 10,
+       "label": "about 10 s (t=26-35)"
+      }
+     ]
+    }
+   ],
+   "unit": "s"
+  }
+ ]
+}

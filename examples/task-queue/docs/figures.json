@@ -1,0 +1,353 @@
+{
+ "figures": [
+  {
+   "type": "terminal",
+   "name": "demo",
+   "title": "task-queue demo",
+   "file": "docs/term/demo.txt",
+   "cols": 112
+  },
+  {
+   "type": "terminal",
+   "name": "processes",
+   "title": "a queue node and three workers as processes",
+   "file": "docs/term/processes.txt",
+   "cols": 112
+  },
+  {
+   "type": "topology",
+   "name": "topology",
+   "title": "The processes of run.sh",
+   "subtitle": "One queue node holds every job in memory. Workers pull jobs from it; clients come and go.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "clients",
+       "nodes": [
+        {
+         "id": "produce",
+         "label": "produce",
+         "sub": "a client",
+         "kind": "client"
+        },
+        {
+         "id": "admin",
+         "label": "status, dead, retry",
+         "sub": "clients",
+         "kind": "client"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "queuenode",
+       "nodes": [
+        {
+         "id": "queue",
+         "label": "queue",
+         "sub": "role=queue",
+         "items": [
+          "seed server",
+          "Broker actor",
+          "every job, in memory"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "workers",
+       "label": "Workers",
+       "nodes": [
+        {
+         "id": "w1",
+         "label": "worker-1",
+         "sub": "role=worker",
+         "items": [
+          "Worker actor",
+          "8 runs at once"
+         ]
+        },
+        {
+         "id": "w2",
+         "label": "worker-2",
+         "sub": "role=worker",
+         "items": [
+          "Worker actor",
+          "8 runs at once"
+         ]
+        },
+        {
+         "id": "w3",
+         "label": "worker-3",
+         "sub": "role=worker",
+         "items": [
+          "Worker actor",
+          "8 runs at once"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "clients",
+     "to": "queue",
+     "label": "Enqueue, Status,\nDead, Retry"
+    },
+    {
+     "from": "workers",
+     "to": "queue",
+     "label": "Fetch: outcomes and the runs still going;\nthe answer: the jobs it asked for",
+     "both": true
+    }
+   ],
+   "note": "Every node finds the cluster through the seed server on the queue node. The calls are JSON, to the name task-queue.broker."
+  },
+  {
+   "type": "topology",
+   "name": "lifecycle",
+   "title": "The states of a job",
+   "subtitle": "The broker moves each job between these states. A worker's poll carries the outcomes of its runs.",
+   "gap": 76,
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "g-enqueue",
+       "nodes": [
+        {
+         "id": "enqueue",
+         "label": "Enqueue",
+         "sub": "from a producer",
+         "kind": "client"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "g-pending",
+       "nodes": [
+        {
+         "id": "pending",
+         "label": "pending",
+         "sub": "in line by priority"
+        }
+       ],
+       "x": 150
+      },
+      {
+       "id": "g-delayed",
+       "nodes": [
+        {
+         "id": "delayed",
+         "label": "delayed",
+         "sub": "waits for its time"
+        }
+       ],
+       "x": 590
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "g-running",
+       "nodes": [
+        {
+         "id": "running",
+         "label": "running",
+         "sub": "on one worker"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "g-dead",
+       "nodes": [
+        {
+         "id": "dead",
+         "label": "dead",
+         "sub": "no attempts left"
+        }
+       ],
+       "x": 150
+      },
+      {
+       "id": "g-done",
+       "nodes": [
+        {
+         "id": "done",
+         "label": "done",
+         "sub": "kept for dedup"
+        }
+       ],
+       "x": 590
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "enqueue",
+     "to": "pending",
+     "label": "no delay"
+    },
+    {
+     "from": "enqueue",
+     "to": "delayed",
+     "label": "delay_ms > 0"
+    },
+    {
+     "from": "delayed",
+     "to": "pending",
+     "label": "due"
+    },
+    {
+     "from": "pending",
+     "to": "running",
+     "label": "Fetch",
+     "from_dx": 40,
+     "to_dx": -20,
+     "label_dx": 22,
+     "label_dy": -4
+    },
+    {
+     "from": "running",
+     "to": "pending",
+     "label": "taken back: no poll,\nor not listed",
+     "dashed": true,
+     "from_dx": -45,
+     "to_dx": -10,
+     "label_dx": -14,
+     "label_dy": 24
+    },
+    {
+     "from": "running",
+     "to": "delayed",
+     "label": "failed: backoff",
+     "from_dx": 20
+    },
+    {
+     "from": "running",
+     "to": "dead",
+     "label": "failed, last attempt",
+     "from_dx": -20
+    },
+    {
+     "from": "running",
+     "to": "done",
+     "label": "ok",
+     "from_dx": 20
+    },
+    {
+     "from": "dead",
+     "to": "pending",
+     "label": "Retry:\nnew attempts",
+     "dashed": true,
+     "from_dx": -50,
+     "to_dx": -50,
+     "bend": 60
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "throughput",
+   "title": "Jobs a second in the demo",
+   "subtitle": "Five runs of the demo, 24 slots. The lighter part of a bar is the range over the runs.",
+   "unit": "jobs/s",
+   "categories": [
+    "the whole demo",
+    "each of the first three workers",
+    "the worker added late"
+   ],
+   "series": [
+    {
+     "name": "jobs/s",
+     "values": [
+      [
+       1484,
+       1503
+      ],
+      [
+       562,
+       585
+      ],
+      [
+       493,
+       507
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "recovery",
+   "title": "After a crash",
+   "subtitle": "The time until the jobs run again. The lighter part of a bar is the range over the runs.",
+   "unit": "s",
+   "categories": [
+    "a worker killed: its jobs handed out again",
+    "the queue node killed: first job on the new one"
+   ],
+   "series": [
+    {
+     "name": "time",
+     "values": [
+      {
+       "v": "1.01",
+       "label": "1.01 s, every run"
+      },
+      [
+       "0.34",
+       "0.75"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "queue-rate",
+   "title": "The queue alone: 200,000 jobs that do nothing",
+   "subtitle": "run.sh 200000 0, four processes on loopback. Lower bounds: status is read every 200 ms.",
+   "unit": "jobs/s",
+   "categories": [
+    "8 runs at once per worker",
+    "32 runs at once per worker"
+   ],
+   "series": [
+    {
+     "name": "jobs/s",
+     "values": [
+      {
+       "v": 154000,
+       "label": "at least 154,000 jobs/s"
+      },
+      {
+       "v": 206000,
+       "label": "at least 206,000 jobs/s"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

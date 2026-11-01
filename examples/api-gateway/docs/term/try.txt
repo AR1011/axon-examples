@@ -1,0 +1,12 @@
+$ curl -s $G1/v1/quote/42 -w "  %{http_code}\n"
+{"price":84133,"backend":"b2"}  200
+$ curl -s -X POST $G1/v1/orders/42 -w "  %{http_code}\n"
+{"order":1048618,"backend":"b1"}  201
+$ curl -s -H "x-deadline-ms: 0" $G1/v1/quote/42 -w "  %{http_code}\n"
+{"error":"deadline"}  504
+$ curl -s $G1/stats | jq -c ".status, {requests, retries, ejections}, .backends[]"
+{"200":1,"201":1,"429":0,"502":0,"503":0,"504":1}
+{"requests":3,"retries":0,"ejections":0}
+{"node":"b1","in_flight":0,"served":1,"ejected":false}
+{"node":"b2","in_flight":0,"served":1,"ejected":false}
+{"node":"b3","in_flight":0,"served":0,"ejected":false}

@@ -1,0 +1,20 @@
+# name     version   source                                                                  sha256 (or git commit)
+redis      7.4.11    https://download.redis.io/releases/redis-7.4.11.tar.gz                 3c266ece0abd54ed3b1c912c6eb86b7508cf382cb690ee6649d3843f018f6357
+etcd       v3.6.15   https://github.com/etcd-io/etcd/releases/download/v3.6.15/etcd-v3.6.15-linux-amd64.tar.gz  b51d86e6bff2168de5ba8cd631c0fe6c785c7a1b32b083079f5677d6b7e2772c
+go         1.26.9    https://go.dev/dl/go1.26.9.linux-amd64.tar.gz                           42d158b4d8f7b61ac0a830567c940a86098fb7aac52e467a5ebec03ef5cc2f8d
+go-ycsb    f030f99   https://github.com/pingcap/go-ycsb                                      f030f9942393a8febbf4365c2d582711723159f5
+fio        3.43      https://github.com/axboe/fio/archive/refs/tags/fio-3.43.tar.gz          efa49b3f36eda9adf29294f27a87d7e457747d676cd0f73996d6365357832cfe
+#
+# Redis is built from source with its own defaults (jemalloc on Linux); etcd is the upstream release build.
+# go-ycsb carries one patch, go-ycsb.patch, applied by setup:
+#   - maxexecutiontime is read: this commit defines it and ignores it, so a phase would run to its operationcount.
+#     A worker starts no operation after the deadline and none in flight is cut, so the end adds no errors.
+#   - its etcd client may send and receive 64 MiB, for the large-value table (the client's default is 2 MiB).
+#
+# Background work, on for every target:
+#   redis-aof  appendonly yes, appendfsync always, AOF rewrite at its defaults
+#   etcd       --auto-compaction-mode=revision --auto-compaction-retention=10000 --quota-backend-bytes=8589934592,
+#              default snapshot-count; in the large-value table --max-request-bytes=33554432 and
+#              --auto-compaction-mode=periodic --auto-compaction-retention=5s (revision mode compacts every 5 min,
+#              and 15 s of 5 MB writes fill the 8 GiB quota before it does)
+#   kv         memory mode has none; durable mode's checkpoints and segment removal come with it

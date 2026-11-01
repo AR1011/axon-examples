@@ -1,0 +1,187 @@
+{
+ "figures": [
+  {
+   "type": "topology",
+   "name": "topology",
+   "title": "The roles of an mdpad cluster",
+   "subtitle": "One binary. A node takes one or more roles. A document's actor and its log are on its home.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "clients",
+       "nodes": [
+        {"id": "browser", "label": "browser", "sub": "the page: Yjs, CodeMirror", "kind": "client"},
+        {"id": "cli", "label": "mdpad", "sub": "command line", "kind": "client"},
+        {"id": "bots", "label": "mdpad load", "sub": "bots, the same protocol", "kind": "client"}
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "web",
+       "label": "Web role: h1, h2, h3, w1",
+       "nodes": [
+        {
+         "id": "webnode",
+         "label": "a web node",
+         "sub": "no state on disk",
+         "items": ["HTTP API and the page", "Session actor per socket", "Gate: ends revoked sign-ins", "relay of every home's streams"]
+        }
+       ]
+      },
+      {
+       "id": "seedg",
+       "nodes": [
+        {"id": "seed", "label": "seed", "sub": "mdpad seed: discovery"}
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "homes",
+       "label": "Home role: h1, h2, h3",
+       "nodes": [
+        {"id": "h1", "label": "h1", "sub": "home", "kind": "store", "items": ["Doc actor per open doc", "Journal: one Log", "Catalog of its docs"]},
+        {"id": "h2", "label": "h2", "sub": "home", "kind": "store", "items": ["Doc actor per open doc", "Journal: one Log", "Catalog of its docs"]},
+        {"id": "h3", "label": "h3", "sub": "home", "kind": "store", "items": ["Doc actor per open doc", "Journal: one Log", "Catalog of its docs"]}
+       ]
+      },
+      {
+       "id": "accountsg",
+       "label": "Accounts role: h1",
+       "nodes": [
+        {"id": "accounts", "label": "accounts", "sub": "users", "kind": "store", "items": ["Accounts actor", "a Log of its own"]}
+       ]
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {"from": "clients", "to": "webnode", "label": "websocket, HTTP /api", "to_dx": 80},
+    {"from": "webnode", "to": "homes", "label": "edits and loads,\nanswered once synced", "from_dx": -95, "to_dx": -105},
+    {"from": "homes", "to": "webnode", "label": "a compacted stream\nper document", "dashed": true, "from_dx": 80, "to_dx": 60},
+    {"from": "webnode", "to": "accountsg", "label": "sign-in check"}
+   ],
+   "note": "In scripts/run.sh, h1 is a home, a web node and the accounts; h2 and h3 are a home and a web node; w1 is a web node."
+  },
+  {
+   "type": "bars",
+   "name": "latency",
+   "title": "A keystroke to the others, and an edit to saved",
+   "subtitle": "Design targets: remote p99 under 50 ms, saved p99 under 25 ms, saved with 2,000 open under 50 ms.",
+   "note": "build-1 and the quiet box: before the nodes set TCP_NODELAY. The busy box: with it, while other jobs loaded the box.",
+   "unit": "ms",
+   "categories": [
+    "remote keystroke, build-1",
+    "remote keystroke, quiet box",
+    "remote keystroke, busy box",
+    "edit to saved, build-1",
+    "edit to saved, quiet box",
+    "edit to saved, busy box",
+    "2,000 open, saved, build-1",
+    "2,000 open, saved, quiet box",
+    "2,000 open, saved, busy box"
+   ],
+   "series": [
+    {
+     "name": "p50",
+     "values": [
+      "8.0",
+      "0.8",
+      {"v": ["0.6", "0.7"], "label": "0.6 and 0.7 ms, two runs"},
+      "8.1",
+      "0.8",
+      {"v": ["0.6", "0.7"], "label": "0.6 and 0.7 ms, two runs"},
+      {"v": null, "label": "not recorded"},
+      {"v": null, "label": "not recorded"},
+      {"v": null, "label": "not recorded"}
+     ]
+    },
+    {
+     "name": "p99",
+     "values": [
+      "48.1",
+      {"v": ["41.4", "41.5"], "label": "41.5 and 41.4 ms, two runs"},
+      {"v": ["1.6", "1.7"], "label": "1.6 and 1.7 ms, two runs"},
+      "48.8",
+      {"v": "41.5", "label": "41.5 and 41.5 ms, two runs"},
+      {"v": "1.5", "label": "1.5 and 1.5 ms, two runs"},
+      "42.2",
+      {"v": ["10.9", "27.5"], "label": "10.9 and 27.5 ms, two runs"},
+      {"v": ["11.9", "64.8"], "label": "11.9 and 64.8 ms, two runs"}
+     ]
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "faults",
+   "title": "fault.sh: each phase under load",
+   "subtitle": "Each phase: 2,700 tokens acked, none lost, every copy the server's.",
+   "unit": "ms",
+   "categories": [
+    "web: SIGKILL w1",
+    "home: SIGKILL h2",
+    "disk: h3's disk full for 8 s",
+    "accounts: SIGKILL h1"
+   ],
+   "series": [
+    {
+     "name": "saved p99",
+     "values": [58, {"v": 4900, "label": "4.9 s"}, {"v": 6800, "label": "6.8 s"}, {"v": 6300, "label": "6.3 s"}]
+    },
+    {
+     "name": "synced again p99",
+     "values": [145, {"v": 5700, "label": "5.7 s"}, {"v": null, "label": "no client lost its socket"}, {"v": 1100, "label": "1.1 s"}]
+    },
+    {
+     "name": "saving again after the start",
+     "values": [{"v": null, "label": "w1 holds no documents"}, 753, {"v": null, "label": "no node restarted"}, 823]
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "name": "soak",
+   "title": "The soak: h3's memory over 120 minutes",
+   "subtitle": "h3 is the one home never killed. The gate: its RSS at the end within 10 % of minute 20.",
+   "unit": "MiB",
+   "x": ["minute 0", "5", "10", "20", "30", "60", "90", "119", "after the load"],
+   "series": [
+    {"name": "h3 RSS", "values": [15, 233, 262, 311, 319, 324, 328, 332, 277]}
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "state",
+   "title": "A document's state against its 256 KiB cap",
+   "subtitle": "The encoded yrs state. tests/size.rs with MDPAD_SIZE_FULL=1, one key a transaction.",
+   "unit": "KiB",
+   "max": 300,
+   "categories": [
+    "100,000 typed at the end, one writer",
+    "100,000 at the end, ten writers",
+    "100,000, each key at a random place",
+    "30,000 typed, then 1,000 edits",
+    "30,000, then 5,000 edits",
+    "30,000, then 10,000 edits",
+    "30,000, then 20,000 edits",
+    "30,000, then 21,000 edits: full"
+   ],
+   "series": [
+    {"name": "state", "values": ["97.7", "105.7", "982.6", "43.3", "95.3", "153.3", "252.9", "262.8"]}
+   ]
+  },
+  {
+   "type": "terminal",
+   "name": "cli",
+   "title": "mdpad from a shell, against the cluster of run.sh",
+   "file": "docs/term/cli.txt"
+  }
+ ]
+}

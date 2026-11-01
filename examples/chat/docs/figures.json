@@ -1,0 +1,245 @@
+{
+ "figures": [
+  {
+   "type": "terminal",
+   "name": "two-nodes",
+   "title": "alice on n0 and bob on n2, in the room tea",
+   "file": "docs/term/two-nodes.txt"
+  },
+  {
+   "type": "terminal",
+   "name": "resume",
+   "title": "carol joins on n1 after the cursor [gen, 1]",
+   "file": "docs/term/resume.txt"
+  },
+  {
+   "type": "topology",
+   "name": "topology",
+   "title": "One room on three nodes",
+   "subtitle": "The room tea runs on n1. alice is on n0 and bob on n2.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "ca",
+       "x": 60,
+       "nodes": [
+        {
+         "id": "alice",
+         "label": "alice",
+         "sub": "websocket client",
+         "kind": "client"
+        }
+       ]
+      },
+      {
+       "id": "cb",
+       "x": 660,
+       "nodes": [
+        {
+         "id": "bob",
+         "label": "bob",
+         "sub": "websocket client",
+         "kind": "client"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "g0",
+       "x": 40,
+       "nodes": [
+        {
+         "id": "n0",
+         "label": "n0",
+         "sub": "chat node, console",
+         "items": [
+          "Session actor of alice",
+          "StreamNode: relay of tea",
+          "ring: recent records"
+         ]
+        }
+       ]
+      },
+      {
+       "id": "gs",
+       "nodes": [
+        {
+         "id": "seed",
+         "label": "seed-1",
+         "sub": "seed server",
+         "items": [
+          "who is in the cluster"
+         ]
+        }
+       ],
+       "x": 365
+      },
+      {
+       "id": "g2",
+       "x": 640,
+       "nodes": [
+        {
+         "id": "n2",
+         "label": "n2",
+         "sub": "chat node",
+         "items": [
+          "Session actor of bob",
+          "StreamNode: relay of tea",
+          "ring: recent records"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "g1",
+       "nodes": [
+        {
+         "id": "n1",
+         "label": "n1",
+         "sub": "chat node",
+         "items": [
+          "Room actor tea (keyed)",
+          "StreamNode: origin of tea",
+          "ring: recent records"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "alice",
+     "to": "n0",
+     "label": "websocket:\njoin, post"
+    },
+    {
+     "from": "bob",
+     "to": "n2",
+     "label": "websocket:\njoin, post"
+    },
+    {
+     "from": "n0",
+     "to": "n1",
+     "label": "post",
+     "bend": -24
+    },
+    {
+     "from": "n1",
+     "to": "n0",
+     "label": "records",
+     "dashed": true,
+     "bend": -24
+    },
+    {
+     "from": "n2",
+     "to": "n1",
+     "label": "post",
+     "bend": -24
+    },
+    {
+     "from": "n1",
+     "to": "n2",
+     "label": "records",
+     "dashed": true,
+     "bend": -24
+    },
+    {
+     "from": "seed",
+     "to": "n0",
+     "dashed": true,
+     "both": true
+    },
+    {
+     "from": "seed",
+     "to": "n1",
+     "label": "membership",
+     "dashed": true,
+     "both": true
+    },
+    {
+     "from": "seed",
+     "to": "n2",
+     "dashed": true,
+     "both": true
+    }
+   ],
+   "note": "Each node pulls every room it relays from one parent node, so a record may pass through a third node."
+  },
+  {
+   "type": "bars",
+   "name": "kill",
+   "title": "Posts in the kill -9 runs",
+   "subtitle": "3,000 sessions, 300 of them slow, 20 rooms, 200 posts/s for 20 s; one node killed 8 s in.",
+   "categories": [
+    "posts",
+    "acknowledged",
+    "refused (nack)",
+    "no answer"
+   ],
+   "series": [
+    {
+     "name": "kill -9 n1",
+     "values": [
+      3980,
+      3930,
+      {
+       "v": 35,
+       "label": "35, plus 5 unknown"
+      },
+      10
+     ]
+    },
+    {
+     "name": "kill -9 n2",
+     "values": [
+      3946,
+      3896,
+      50,
+      0
+     ]
+    }
+   ],
+   "axis": "posts"
+  },
+  {
+   "type": "bars",
+   "name": "latency",
+   "title": "Post to reading session, p50 and p99",
+   "subtitle": "The runs of 2026-10-09, on a shared box with other builds.",
+   "categories": [
+    "plain load",
+    "kill -9 n1",
+    "kill -9 n2"
+   ],
+   "series": [
+    {
+     "name": "p50",
+     "values": [
+      19,
+      12,
+      4
+     ]
+    },
+    {
+     "name": "p99",
+     "values": [
+      88,
+      114,
+      522
+     ]
+    }
+   ],
+   "unit": "ms"
+  }
+ ]
+}

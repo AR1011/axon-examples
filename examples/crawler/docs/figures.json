@@ -1,0 +1,215 @@
+{
+ "figures": [
+  {
+   "type": "terminal",
+   "name": "demo-kill",
+   "file": "docs/term/demo-kill.txt",
+   "title": "crawler demo --kill-at 0.4"
+  },
+  {
+   "type": "topology",
+   "name": "topology",
+   "title": "The cluster of crawler demo",
+   "subtitle": "Four processes on loopback. One Domain actor per domain; its frontier is in its log.",
+   "gap": 84,
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "demo",
+       "label": "crawler demo, one process",
+       "nodes": [
+        {
+         "id": "control",
+         "label": "control",
+         "sub": "cluster node, role control",
+         "items": [
+          "seeds a root per domain",
+          "asks each domain Status",
+          "axon console (--console)"
+         ]
+        },
+        {
+         "id": "seed",
+         "label": "seed server",
+         "sub": "discovery",
+         "items": [
+          "the member list"
+         ]
+        },
+        {
+         "id": "site",
+         "label": "the site",
+         "sub": "d0.site .. d7.site",
+         "kind": "external",
+         "items": [
+          "one HTTP port",
+          "records each request"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "crawlers",
+       "label": "crawler nodes n0, n1, n2: child processes",
+       "nodes": [
+        {
+         "id": "n0",
+         "label": "n0",
+         "sub": "role crawler",
+         "items": [
+          "Domain actor per domain",
+          "fetch jobs, 32 a node",
+          "resume after a member goes"
+         ]
+        },
+        {
+         "id": "n1",
+         "label": "n1",
+         "sub": "role crawler",
+         "items": [
+          "Domain actor per domain",
+          "fetch jobs, 32 a node",
+          "resume after a member goes"
+         ]
+        },
+        {
+         "id": "n2",
+         "label": "n2",
+         "sub": "role crawler",
+         "items": [
+          "Domain actor per domain",
+          "fetch jobs, 32 a node",
+          "resume after a member goes"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "logs",
+       "nodes": [
+        {
+         "id": "data",
+         "label": "data directory",
+         "sub": "every node reads it",
+         "kind": "store",
+         "items": [
+          "a log per domain: d3.site.log",
+          "D url: discovered",
+          "F url: finished"
+         ]
+        }
+       ],
+       "x": 138
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "control",
+     "to": "crawlers",
+     "label": "Add(root), Status",
+     "to_dx": -180
+    },
+    {
+     "from": "crawlers",
+     "to": "seed",
+     "dashed": true,
+     "both": true,
+     "label": "heartbeat"
+    },
+    {
+     "from": "crawlers",
+     "to": "site",
+     "label": "GET, at most\nrate a domain",
+     "from_dx": 180
+    },
+    {
+     "from": "n0",
+     "to": "n2",
+     "bend": 150,
+     "both": true,
+     "label": "Add(urls) to the domain's owner,\nacked once in its log"
+    },
+    {
+     "from": "crawlers",
+     "to": "data",
+     "label": "append D and F,\nread in on_start",
+     "from_dx": -207
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "pages",
+   "title": "Pages a second against the rate limit",
+   "subtitle": "Single runs of crawler demo. The limit is the domains times the rate per domain.",
+   "categories": [
+    "8 × 100, rate 20",
+    "same, kill at 0.4",
+    "64 × 200, rate 50",
+    "same, kill at 0.4"
+   ],
+   "series": [
+    {
+     "name": "pages a second",
+     "values": [
+      "156",
+      "157",
+      "3071",
+      "3082"
+     ]
+    },
+    {
+     "name": "limit",
+     "values": [
+      "160",
+      "160",
+      "3200",
+      "3200"
+     ]
+    }
+   ],
+   "unit": "pages/s"
+  },
+  {
+   "type": "bars",
+   "name": "gap",
+   "title": "Longest time a domain had no request",
+   "subtitle": "After a kill, the next hand-over starts the dead node's domains; with no links between domains, resume does.",
+   "categories": [
+    "8 × 100, rate 20",
+    "same, kill at 0.4",
+    "64 × 200, rate 50",
+    "same, kill at 0.4",
+    "kill, no cross links (test)"
+   ],
+   "series": [
+    {
+     "name": "longest gap",
+     "values": [
+      "58",
+      "59",
+      "123",
+      "116",
+      {
+       "v": 2100,
+       "label": "about 2.1 s"
+      }
+     ]
+    }
+   ],
+   "unit": "ms",
+   "max": 200
+  }
+ ]
+}

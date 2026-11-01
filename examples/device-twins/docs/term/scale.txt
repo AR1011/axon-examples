@@ -1,0 +1,31 @@
+$ target/release/device-twins scale 20000 12 1000 | cut -c1-103
+   6.5s  alerts and 3 twin nodes serve, the acceptor is warm
+     t  twins per node                      reports/s   p50 ms  p99 ms  handoffs  isolated  leases lost
+   0.0  19 11 2                                  7608      1.2     1.4         0         0            0
+   1.0  6735 7698 5151                          19565      1.0   671.1         4         0            0
+   2.0  6735 6656 6609                          20436      0.2   604.0      1046         0            0
+   3.0  6735 6656 6609                          19991      0.1     0.6      1046         0            0
+   4.0s  starting twin-4
+   4.0  6735 6656 6609                          19999      0.1    11.5      1046         0            0
+   5.0s  twin-4 serves
+   5.0  5026 5012 4997 4965                     19952      0.1    13.6      6011         0            0
+   6.0  5026 5012 4997 4965                     19999      0.1    11.5      6011         0            0
+   7.0  5026 5012 4997 4965                     20010      0.1    11.5      6011         0            0
+   8.0  5026 5012 4997 4965                     20052      0.1    11.5      6011         0            0
+   9.0  5026 5012 4997 4965                     20000      0.1     0.5      6011         0            0
+  10.0  5026 5012 4997 4965                     20009      0.1     0.4      6011         0            0
+  11.0  5026 5012 4997 4965                     19996      0.1     0.4      6011         0            0
+  12.0  5026 5012 4997 4965                     19949      0.1     0.4      6011         0            0
+--
+20000 devices x 12 readings in 12.0s: 240000 acked, 240000 applied, 20000 twins live
+reports/s: mean 19958 over the run, median second 20000; latency p50 0.1 ms p99 11.5 ms (bucket bounds,
+twin-1: 5026 twins, rss 83 MB (+74 MB, 15454 B per twin), handoffs 1713 (failed 0), refused 0, keyed_fa
+  isolations 0, leases lost 0, TwinCounters { started: 6739, restored_local: 0, restored_remote: 0, fre
+twin-2: 5012 twins, rss 89 MB (+80 MB, 16829 B per twin), handoffs 2686 (failed 0), refused 8219, keyed
+  isolations 0, leases lost 0, TwinCounters { started: 7698, restored_local: 0, restored_remote: 2, fre
+twin-3: 4997 twins, rss 77 MB (+68 MB, 14388 B per twin), handoffs 1612 (failed 0), refused 595, keyed_
+  isolations 0, leases lost 0, TwinCounters { started: 6609, restored_local: 0, restored_remote: 1044, 
+twin-4: 4965 twins, rss 54 MB (+44 MB, 9453 B per twin), handoffs 0 (failed 0), refused 0, keyed_failed
+  isolations 0, leases lost 0, TwinCounters { started: 4965, restored_local: 0, restored_remote: 4965, 
+alerts: 2816 of 2816 expected; alerts node rss 16 MB; leases [("held", "0"), ("acquired", "0"), ("held 
+twin starts: 20000 fresh, 6011 restored from a parked state; gaps and losses 0

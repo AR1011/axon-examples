@@ -1,0 +1,14 @@
+$ target/release/task-queue demo 2>/dev/null
+  0.00s  queue, producer and 3 workers up: 1000 jobs at most waiting, 8 at once per worker, visibility 1s
+  1.75s  worker-2 crashed with 8 jobs running; 3024 of 10000 ended
+  2.77s  worker-2's 8 jobs taken back 1.01s after the crash, back in their old place in line
+  4.20s  worker-4 added; 6018 of 10000 ended
+  6.72s  all 10000 ended: 9990 done, 10 dead, 1490 jobs/s; the producer was held back 529 times
+  6.73s  0 runs were duplicates, each of a delivery the broker took back (8 taken back in all, 8 of them from worker-2; none of its runs ended after the crash)
+  6.73s  mean wait by priority, ms: 0: 1610, 1: 92, 2: 23
+  6.73s  done per worker: worker-1 3821 (569/s), worker-2 1032 (590/s), worker-3 3892 (580/s), worker-4 1245 (495/s)
+  6.73s  dead set is the 10 jobs planned to die: panicked: planned panic 3; retried 10
+  8.64s  the retried jobs failed 3 more times each and are dead again
+  8.77s  queue node crashed holding the 300 late jobs: 54 pending, 150 delayed, 24 running, 72 done
+  9.02s  a new queue node is up with an empty broker; the producer enqueues the 300 again, same ids
+ 11.26s  all 300 done on the new broker, the first 334.45ms after the crash; 96 had run under the old one and ran again, and 24 outcomes for the old broker's deliveries were ignored

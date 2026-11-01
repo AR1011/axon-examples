@@ -1,0 +1,28 @@
+[package]
+name = "kv"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Example: a sharded key-value store that speaks the Redis protocol, one keyed actor per shard, benchmarked with YCSB"
+
+[dependencies]
+axon.workspace = true
+axon-cluster.workspace = true
+axon-net.workspace = true
+axon-obs = { workspace = true, features = ["dashboard"] }
+axum = { version = "0.8", default-features = false, features = ["http1", "json", "query", "tokio"] }
+bytes = "1"
+futures-util = { version = "0.3", default-features = false, features = ["alloc"] }
+# The built console (ui/dist), in the binary.
+include_dir = "0.7"
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time", "signal", "sync", "io-util"] }
+
+[dev-dependencies]
+axon-testkit.workspace = true
+tokio = { version = "1", features = ["test-util"] }
+
+[lints]
+workspace = true

@@ -1,0 +1,26 @@
+$ api-gateway load --url $G1,$G2 --concurrency 16 --secs 20 --orders-every 10   # b3 cut from 4 s to 14 s
+t=0   ok=27750 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=43.2
+t=1   ok=53394 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=41.9
+t=2   ok=30275 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=42.1
+t=3   ok=22367 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=41.0
+t=4   ok=20394 429=0 503=0 504=3 other=0 hung=0 conn_err=0 max_ms=153.1
+t=5   ok=21937 429=0 503=0 504=2 other=0 hung=0 conn_err=0 max_ms=152.0
+t=6   ok=24046 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=8.1
+t=7   ok=27318 429=0 503=0 504=1 other=0 hung=0 conn_err=0 max_ms=152.6
+t=8   ok=34139 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=6.8
+t=9   ok=69436 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=7.0
+t=10  ok=76508 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=2.7
+t=11  ok=79371 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=2.6
+t=12  ok=73639 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=3.9
+t=13  ok=63772 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=4.5
+t=14  ok=56684 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=11.6
+t=15  ok=41213 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=45.4
+t=16  ok=33699 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=14.0
+t=17  ok=37282 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=82.8
+t=18  ok=47295 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=64.9
+t=19  ok=27353 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=46.1
+t=20  ok=0 429=0 503=0 504=0 other=0 hung=0 conn_err=0 max_ms=0.0
+summary {"secs":20.0,"concurrency":16,"requests":867878,"rps":43358,"ok":867872,"429":0,"503":0,"504":6,"other":0,"hung":0,"conn_err":0,"p50_ms":0.23,"p90_ms":0.72,"p99_ms":2.36,"p999_ms":4.72,"max_ms":153.1}
+$ grep backend g1.log | tail -n 2
+136.8s backend b3 removed
+140.9s backend b3 added

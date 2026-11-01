@@ -1,0 +1,32 @@
+[package]
+name = "workflows"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Example: a durable workflow engine, Rust async fns over a journal replicated on three history nodes"
+
+[dependencies]
+axon.workspace = true
+axon-cluster.workspace = true
+axon-net.workspace = true
+argon2 = "0.5"
+axum = { version = "0.8", default-features = false, features = ["http1", "json", "matched-path", "query", "tokio"] }
+bytes = { version = "1", features = ["serde"] }
+include_dir = "0.7"
+futures-util = { version = "0.3", default-features = false, features = ["alloc"] }
+postcard = { version = "1", default-features = false, features = ["alloc"] }
+# The command line's HTTP client. No TLS: it talks to an api node on a private network.
+reqwest = { version = "0.12", default-features = false }
+ring = "0.17"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "sync", "time", "macros", "net", "signal"] }
+
+[dev-dependencies]
+axon-testkit.workspace = true
+tempfile = "3"
+
+[lints]
+workspace = true

@@ -1,0 +1,73 @@
+[workspace]
+resolver = "3"
+members = [
+    "examples/api-gateway",
+    "examples/chat",
+    "examples/crawler",
+    "examples/cron-singleton",
+    "examples/device-twins",
+    "examples/edge-workers",
+    "examples/kv",
+    "examples/ledger",
+    "examples/market-data",
+    "examples/matching-engine",
+    "examples/mdpad",
+    "examples/paxos",
+    "examples/saga",
+    "examples/task-queue",
+    "examples/workflows",
+]
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.99"
+license = "Apache-2.0"
+publish = false
+
+# One rev for every crate: bump it here (see the README).
+[workspace.dependencies]
+axon = { git = "https://github.com/AR1011/axon", rev = "a92ac6d512315b1ea30baa7a3d050c5f4b5d4a1c" }
+axon-cluster = { git = "https://github.com/AR1011/axon", rev = "a92ac6d512315b1ea30baa7a3d050c5f4b5d4a1c" }
+axon-net = { git = "https://github.com/AR1011/axon", rev = "a92ac6d512315b1ea30baa7a3d050c5f4b5d4a1c" }
+axon-obs = { git = "https://github.com/AR1011/axon", rev = "a92ac6d512315b1ea30baa7a3d050c5f4b5d4a1c" }
+axon-stream = { git = "https://github.com/AR1011/axon", rev = "a92ac6d512315b1ea30baa7a3d050c5f4b5d4a1c" }
+axon-testkit = { git = "https://github.com/AR1011/axon", rev = "a92ac6d512315b1ea30baa7a3d050c5f4b5d4a1c" }
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+
+[workspace.lints.clippy]
+disallowed_methods = "deny"
+
+# edge-workers compiles SpiderMonkey (10 MB of wasm) at every deploy its tests make: minutes with an unoptimised
+# compiler, seconds with these.
+[profile.dev.package.cranelift-codegen]
+opt-level = 3
+[profile.dev.package.regalloc2]
+opt-level = 3
+[profile.dev.package.wasmparser]
+opt-level = 3
+[profile.dev.package.wasm-encoder]
+opt-level = 3
+[profile.dev.package.wasmtime-internal-cranelift]
+opt-level = 3
+[profile.dev.package.wasmtime-environ]
+opt-level = 3
+[profile.dev.package.wasmtime-wizer]
+opt-level = 3
+[profile.dev.package.wit-component]
+opt-level = 3
+[profile.dev.package.winch-codegen]
+opt-level = 3
+[profile.dev.package.wasmtime-internal-winch]
+opt-level = 3
+
+# Password hashes in tests and debug servers: argon2id at its real cost takes seconds unoptimised.
+[profile.dev.package.argon2]
+opt-level = 3
+[profile.dev.package.blake2]
+opt-level = 3
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

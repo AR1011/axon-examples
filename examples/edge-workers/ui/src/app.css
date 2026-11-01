@@ -1,0 +1,55 @@
+@source "../node_modules/@cloudflare/kumo/dist/**/*.{js,jsx,ts,tsx}";
+@import "@cloudflare/kumo/styles/tailwind";
+@import "tailwindcss";
+@source not "../dist";
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--color-kumo-canvas);
+    color: var(--text-color-kumo-default);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(
+        in srgb,
+        var(--text-color-kumo-subtle) 35%,
+        transparent
+      )
+      transparent;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+    }
+  }
+}
+
+/* The editor's colours. `light-dark()` follows the mode the page is in. */
+:root {
+  --code-keyword: light-dark(#cf222e, #ff7b72);
+  --code-string: light-dark(#0a3069, #a5d6ff);
+  --code-number: light-dark(#0550ae, #79c0ff);
+  --code-name: light-dark(#8250df, #d2a8ff);
+  --code-type: light-dark(#953800, #ffa657);
+}
+.cm-editor {
+  height: 100%;
+  font-size: 13px;
+}
+.cm-editor.cm-focused {
+  outline: none;
+}
+.cm-editor .cm-scroller {
+  font-family: var(--font-mono);
+  line-height: 1.6;
+}

@@ -1,0 +1,29 @@
+$ examples/cron-singleton/fault.sh target/release/cron-singleton out
+22:23:09 first holder s3 (the acceptors warm up for one lease first)
+22:23:19 SIGSTOP s3 for 15 s, past its 6 s lease (29 fires so far)
+22:23:24 new holder s1 after 5345 ms
+22:23:34 SIGCONT s3
+22:23:46 kill -9 s3 (97 fires so far)
+22:23:51 new holder s1 after 4279 ms
+22:23:56 restart s3
+22:24:11 SIGSTOP the run log for 10 s: calls time out and are sent again (160 fires so far)
+22:24:22 SIGCONT the run log; fires resume (177)
+22:24:32 stopping (203 fires)
+s1 claimed the run log at epoch 1791757404637835
+s1 epoch 1791757404637835 stopped: Drained
+s1 claimed the run log at epoch 1791757430953045
+s1 epoch 1791757430953045 stopped: Drained
+s3 claimed the run log at epoch 1791757389203950
+s3 epoch 1791757389203950 stopped: Fenced
+s3 claimed the run log at epoch 1791757415485438
+s3 claimed the run log at epoch 1791757436668344
+s3 epoch 1791757436668344 stopped: Drained
+ok: 208 fires, 0 refused, claims s3@1791757389203950 s1@1791757404637835 s3@1791757415485438 s1@1791757430953045 s3@1791757436668344
+  beat: ticks 1791757389..=1791757474, each once
+  burst: ticks 2559653413..=2559653534, each once
+  digest: ticks 358351477..=358351494, each once
+  epoch 1791757389203950: 29 fires, the latest 4248 ms after its tick
+  epoch 1791757404637835: 39 fires, the latest 4640 ms after its tick
+  epoch 1791757415485438: 29 fires, the latest 1 ms after its tick
+  epoch 1791757430953045: 24 fires, the latest 3954 ms after its tick
+  epoch 1791757436668344: 87 fires, the latest 9971 ms after its tick

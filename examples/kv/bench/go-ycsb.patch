@@ -1,0 +1,45 @@
+diff --git a/db/etcd/db.go b/db/etcd/db.go
+index 1255f5a..76e066c 100644
+--- a/db/etcd/db.go
++++ b/db/etcd/db.go
+@@ -77,6 +77,9 @@ func getClientConfig(p *properties.Properties) (*clientv3.Config, error) {
+ 		Endpoints:   strings.Split(endpoints, ","),
+ 		DialTimeout: dialTimeout,
+ 		TLS:         tlsConfig,
++		// kv bench: values of 1, 5 and 10 MB. The client sends at most 2 MiB by default.
++		MaxCallSendMsgSize: 64 << 20,
++		MaxCallRecvMsgSize: 64 << 20,
+ 	}, nil
+ }
+ 
+diff --git a/pkg/client/client.go b/pkg/client/client.go
+index 7537ce0..da90399 100644
+--- a/pkg/client/client.go
++++ b/pkg/client/client.go
+@@ -39,12 +39,17 @@ type worker struct {
+ 	threadID        int
+ 	targetOpsTickNs int64
+ 	opsDone         int64
++	// kv bench: maxexecutiontime, which this commit defines but does not read.
++	deadline time.Time
+ }
+ 
+ func newWorker(p *properties.Properties, threadID int, threadCount int, workload ycsb.Workload, db ycsb.DB) *worker {
+ 	w := new(worker)
+ 	w.p = p
+ 	w.doTransactions = p.GetBool(prop.DoTransactions, true)
++	if secs := p.GetInt64(prop.MaxExecutiontime, 0); secs > 0 {
++		w.deadline = time.Now().Add(time.Duration(secs) * time.Second)
++	}
+ 	w.batchSize = p.GetInt(prop.BatchSize, prop.DefaultBatchSize)
+ 	if w.batchSize > 1 {
+ 		w.doBatch = true
+@@ -118,7 +123,7 @@ func (w *worker) run(ctx context.Context) {
+ 
+ 	startTime := time.Now()
+ 
+-	for w.opCount == 0 || w.opsDone < w.opCount {
++	for (w.opCount == 0 || w.opsDone < w.opCount) && (w.deadline.IsZero() || time.Now().Before(w.deadline)) {
+ 		var err error
+ 		opsCount := 1
+ 		if w.doTransactions {

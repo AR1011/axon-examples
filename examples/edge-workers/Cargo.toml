@@ -1,0 +1,44 @@
+[package]
+name = "edge-workers"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Example: a Workers-like platform, JavaScript on StarlingMonkey under wasmtime, on axon actors"
+
+[dependencies]
+axon = { workspace = true, features = ["serde"] }
+axon-cluster.workspace = true
+axon-net.workspace = true
+axon-stream = { workspace = true, features = ["cluster"] }
+argon2 = "0.5"
+axum = { version = "0.8", default-features = false, features = ["http1", "json", "query", "tokio"] }
+bytes = "1"
+futures-util = { version = "0.3", default-features = false, features = ["alloc"] }
+http = "1"
+http-body-util = "0.1"
+hyper = "1"
+# The built console (ui/dist), in the binary.
+include_dir = "0.7"
+# The command line's HTTP client. No TLS: it talks to the control node and the gateways on a private network.
+reqwest = { version = "0.12", default-features = false }
+ring = "0.17"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+rustix = { version = "1", features = ["time"] }
+tempfile = "3"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "net", "signal", "sync"] }
+wasmtime = { version = "49", default-features = false, features = ["runtime", "cranelift", "component-model", "async", "pooling-allocator", "cache", "parallel-compilation", "winch"] }
+wasmtime-wasi = "49"
+wasmtime-wasi-http = "49"
+wasmtime-wizer = { version = "49", features = ["wasmtime"] }
+wit-component = "0.258"
+
+[dev-dependencies]
+axon-testkit.workspace = true
+tokio = { version = "1", features = ["test-util", "io-util"] }
+
+[lints]
+workspace = true

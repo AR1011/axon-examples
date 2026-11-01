@@ -1,0 +1,22 @@
+[package]
+name = "crawler"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "A distributed web crawler on axon: a keyed actor per domain, politeness timers, a durable frontier"
+
+[dependencies]
+axon.workspace = true
+axon-cluster.workspace = true
+axon-net.workspace = true
+axon-obs = { workspace = true, features = ["dashboard"] }
+bytes = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "io-util", "io-std", "time", "sync", "process"] }
+
+[dev-dependencies]
+axon-testkit.workspace = true
+
+[lints]
+workspace = true

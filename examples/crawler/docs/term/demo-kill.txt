@@ -1,0 +1,14 @@
+$ target/release/crawler demo --kill-at 0.4 --data /tmp/crawl | tail -n 2
+killed n2, which owned 4 domains, after 2.754190492s
+status of d1.site: Call(NoRoute)
+status of d2.site: Call(NoRoute)
+status of d3.site: Call(NoRoute)
+status of d5.site: Call(NoRoute)
+829 URLs, 872 requests in 5.6s: 157 pages/s; 1 URLs answered twice; busiest domain second: 20; longest gap: 59.2ms; killed: Some(("n2", 4))
+check passed
+$ head -n 3 /tmp/crawl/d3.site.log
+D http://d3.site/p0
+D http://d3.site/p2
+D http://d3.site/p91
+$ grep -c "^F" /tmp/crawl/d3.site.log
+104

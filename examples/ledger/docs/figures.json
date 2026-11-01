@@ -1,0 +1,376 @@
+{
+ "figures": [
+  {
+   "type": "terminal",
+   "name": "demo",
+   "title": "ledger demo: three hosts and a client in one process",
+   "file": "docs/term/demo.txt"
+  },
+  {
+   "type": "terminal",
+   "name": "load",
+   "title": "ledger load against three host processes",
+   "file": "docs/term/load.txt"
+  },
+  {
+   "type": "topology",
+   "name": "topology",
+   "title": "Three hosts, a load and one shared directory",
+   "subtitle": "Each account runs on the host that holds its lease. Its log is in the directory every process shares.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "clients",
+       "nodes": [
+        {
+         "id": "load",
+         "label": "load",
+         "sub": "a cluster node, hosts nothing",
+         "kind": "client",
+         "items": [
+          "64 clients",
+          "a KeyedRef per account",
+          "retries until answered"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "hosts",
+       "label": "Hosts ledger-a, ledger-b, ledger-c",
+       "nodes": [
+        {
+         "id": "a",
+         "label": "ledger-a",
+         "sub": "host",
+         "items": [
+          "Account actor per account",
+          "Paxos lease acceptor",
+          "seed server"
+         ]
+        },
+        {
+         "id": "b",
+         "label": "ledger-b",
+         "sub": "host",
+         "items": [
+          "Account actor per account",
+          "Paxos lease acceptor",
+          "seed server"
+         ]
+        },
+        {
+         "id": "c",
+         "label": "ledger-c",
+         "sub": "host",
+         "items": [
+          "Account actor per account",
+          "Paxos lease acceptor",
+          "seed server"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "disk",
+       "nodes": [
+        {
+         "id": "dir",
+         "label": "DIR",
+         "sub": "one directory, shared",
+         "kind": "store",
+         "items": [
+          "<account>/<epoch>.log, one per owner",
+          "<account>/snap",
+          "leases/<host>/, the acceptors' logs",
+          "cut.lock"
+         ]
+        }
+       ],
+       "x": 318.4
+      },
+      {
+       "id": "auditors",
+       "nodes": [
+        {
+         "id": "audit",
+         "label": "audit",
+         "sub": "ledger audit",
+         "kind": "client",
+         "items": [
+          "checks every rule"
+         ]
+        }
+       ],
+       "x": 671.6
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "load",
+     "to": "hosts",
+     "label": "Open, Deposit, Withdraw,\nTransfer, Balance"
+    },
+    {
+     "from": "hosts",
+     "to": "dir",
+     "label": "append and fsync,\nonly to its own segment"
+    },
+    {
+     "from": "audit",
+     "to": "dir",
+     "label": "read every log\nat one instant"
+    }
+   ],
+   "note": "Hosts also call each other: a Credit for each transfer, and the lease and seed traffic."
+  },
+  {
+   "type": "topology",
+   "name": "transfer",
+   "title": "A transfer from acct-0007 to acct-0042",
+   "subtitle": "Each step is in a log and synced before the next. The client gets its answer after step 3.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "g-client",
+       "nodes": [
+        {
+         "id": "client",
+         "label": "client",
+         "sub": "Transfer { tid, to, amount }",
+         "kind": "client"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "g-src",
+       "nodes": [
+        {
+         "id": "src",
+         "label": "acct-0007",
+         "sub": "source",
+         "items": [
+          "1. Out: debit the amount",
+          "3. Settled, or Refund"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "g-dst",
+       "nodes": [
+        {
+         "id": "dst",
+         "label": "acct-0042",
+         "sub": "destination",
+         "items": [
+          "2. In: credit, once per from/tid",
+          "2. or Reject, if it is not open"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "client",
+     "to": "src",
+     "label": "Transfer, and the answer\nonce settled",
+     "both": true
+    },
+    {
+     "from": "src",
+     "to": "dst",
+     "label": "Credit { from, tid, amount }",
+     "bend": -60,
+     "label_dx": 110
+    },
+    {
+     "from": "dst",
+     "to": "src",
+     "label": "Ok or NoAccount",
+     "dashed": true,
+     "bend": -60,
+     "label_dx": -100
+    }
+   ],
+   "note": "If the source's host dies between 1 and 3, the next owner of acct-0007 sends the Credit again.",
+   "gap": 80
+  },
+  {
+   "type": "topology",
+   "name": "fence",
+   "title": "How a new owner fences the old one",
+   "subtitle": "One log segment per owner in DIR/<account>/, named by the lease's epoch. A host writes only to its own.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "owners",
+       "nodes": [
+        {
+         "id": "old",
+         "label": "old owner",
+         "sub": "epoch 10, paused, then woken"
+        },
+        {
+         "id": "new",
+         "label": "new owner",
+         "sub": "epoch 20"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "acct",
+       "label": "acct-0007/",
+       "nodes": [
+        {
+         "id": "seg10",
+         "label": "00..0010.log",
+         "sub": "epoch 10",
+         "kind": "store",
+         "items": [
+          "Own",
+          "events up to byte N",
+          "a late write, past N"
+         ]
+        },
+        {
+         "id": "seg20",
+         "label": "00..0020.log",
+         "sub": "epoch 20",
+         "kind": "store",
+         "items": [
+          "Own { sealed: 10 at N }",
+          "events"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "old",
+     "to": "seg10",
+     "label": "write, sync, then look:\na newer segment, refused",
+     "to_dx": 10,
+     "label_dx": -40
+    },
+    {
+     "from": "new",
+     "to": "seg20",
+     "label": "1. create it first",
+     "label_dx": 45
+    },
+    {
+     "from": "new",
+     "to": "seg10",
+     "label": "2. read up to N,\nseal it there",
+     "dashed": true,
+     "to_dx": 35,
+     "label_dx": -25
+    }
+   ],
+   "note": "Nobody reads past a seal, so the late write is lost and its caller was never told it worked.",
+   "gap": 100
+  },
+  {
+   "type": "bars",
+   "name": "rate",
+   "title": "Commands answered per second",
+   "subtitle": "64 clients, each waiting for its answer. The lighter part of a bar is the range over runs.",
+   "unit": "",
+   "axis": "commands/s",
+   "categories": [
+    "demo, whole load, crash included (4 runs)",
+    "demo, the 0.3 s before the crash (4 runs)",
+    "3 host processes, no fault (2 runs)"
+   ],
+   "series": [
+    {
+     "name": "commands/s",
+     "values": [
+      [
+       "5000",
+       "5600"
+      ],
+      [
+       "16500",
+       "22400"
+      ],
+      {
+       "v": [
+        "19 700",
+        "24 200"
+       ],
+       "label": "19 700 and 24 200"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "away",
+   "title": "How long the accounts of a failed host are away",
+   "subtitle": "Until a caller is answered again, from the fault, or from the restart for the last row.",
+   "unit": "s",
+   "categories": [
+    "crash in process, lease 2 s (4 runs)",
+    "crash in process, lease 1 s",
+    "kill -9 a host, lease 2 s: full rate (2 runs)",
+    "SIGSTOP a host, lease 1 s (3 runs)",
+    "back on the restarted host"
+   ],
+   "series": [
+    {
+     "name": "seconds",
+     "values": [
+      [
+       "1.8",
+       "1.9"
+      ],
+      "1.0",
+      {
+       "v": 3,
+       "label": "within 3 s"
+      },
+      "7",
+      [
+       "1.1",
+       "2.2"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

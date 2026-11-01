@@ -1,0 +1,32 @@
+$ redis-cli -c -p 6379 SET greeting hello
+OK
+$ redis-cli -c -p 6380 GET greeting
+hello
+$ redis-cli -c -p 6379 -x SET wasm:hello </tmp/kv-wasm.bin
+OK
+$ redis-cli -c -p 6381 GET wasm:hello | head -c 5000000 | cmp - /tmp/kv-wasm.bin && echo same bytes
+same bytes
+$ redis-cli -c -p 6379 MSET a 1 b 2
+CROSSSLOT Keys in request don't hash to the same slot
+
+$ redis-cli -c -p 6379 MSET {u1}a 1 {u1}b 2
+OK
+$ redis-cli -p 6379 INFO kv | head -n 18
+# Kv
+node:n1
+mode:durable
+storage_set:n1,n2,n3
+shards:256
+shard_starts:132
+lease_ms:6000
+lease_hold_ms:5740
+lease_grace_ms:5022
+lease_renew_ms:2009
+wal_writes:150234
+wal_failed_writes:0
+wal_entries:3487528
+entries_per_write:23.21
+wal_bytes:67108864
+wal_segments:1
+snapshots:636
+snapshot_bytes:5065323

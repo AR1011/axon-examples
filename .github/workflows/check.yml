@@ -1,0 +1,60 @@
+name: check
+# At the axon rev Cargo.toml pins on every push, and against axon main every night, so a change in axon that breaks
+# an example shows up the next morning.
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "37 3 * * *"
+  workflow_dispatch:
+env:
+  # Full debug info in every test binary fills the runner's disk; file and line in a panic are what a failure needs.
+  CARGO_PROFILE_DEV_DEBUG: line-tables-only
+  # The pinned build proves the committed Cargo.lock; the nightly one follows axon main and must re-resolve.
+  LOCKED: ${{ github.event_name != 'schedule' && '--locked' || '' }}
+jobs:
+  check:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      # In parallel, so a push hears back in the time of the slowest. edge-workers deploys a JavaScript engine in most
+      # of its tests: it is half of the work, in two parts.
+      matrix:
+        include:
+          - name: lint
+            cache: lint
+            run: cargo fmt --all --check && cargo clippy $LOCKED --workspace --all-features --all-targets -- -D warnings
+          - name: examples
+            cache: examples
+            run: cargo test $LOCKED --workspace --exclude edge-workers --all-features --no-fail-fast
+          - name: edge-workers 1
+            cache: edge-workers
+            engine: true
+            run: cargo test $LOCKED -p edge-workers --all-features --no-fail-fast $(examples/edge-workers/scripts/ci-tests.sh first)
+          - name: edge-workers 2
+            cache: edge-workers
+            engine: true
+            run: cargo test $LOCKED -p edge-workers --all-features --no-fail-fast $(examples/edge-workers/scripts/ci-tests.sh rest)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ${{ matrix.cache }}
+          # A red run built the same dependencies as a green one.
+          cache-on-failure: true
+      - name: follow axon main
+        if: github.event_name == 'schedule'
+        run: sed -i -E 's/rev = "[0-9a-f]+"/branch = "main"/' Cargo.toml
+      # A push runs 8 seeds of each World test; the nightly run, every seed the test names.
+      - name: fewer seeds on a push
+        if: github.event_name != 'schedule'
+        run: echo "SEEDS=8" >> "$GITHUB_ENV"
+      # edge-workers runs JavaScript on StarlingMonkey, which is fetched by its sha256, not committed.
+      - if: matrix.engine
+        run: examples/edge-workers/scripts/fetch-engine.sh
+      - run: ${{ matrix.run }}

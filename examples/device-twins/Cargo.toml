@@ -1,0 +1,22 @@
+[package]
+name = "device-twins"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Example: one keyed twin actor per IoT device, UDP ingest on any node, alerts on a stream"
+
+[dependencies]
+axon = { workspace = true, features = ["serde"] }
+axon-cluster.workspace = true
+axon-net.workspace = true
+axon-stream = { workspace = true, features = ["cluster"] }
+axum = { version = "0.8", default-features = false, features = ["http1", "tokio", "json"] }
+bytes = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "signal", "sync", "time", "process", "io-util"] }
+
+[lints]
+workspace = true

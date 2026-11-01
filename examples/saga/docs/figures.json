@@ -1,0 +1,213 @@
+{
+ "figures": [
+  {
+   "type": "terminal",
+   "name": "load",
+   "title": "saga load with n2 killed, then saga check",
+   "file": "docs/term/load.txt"
+  },
+  {
+   "type": "topology",
+   "name": "topology",
+   "title": "The cluster of demo.sh",
+   "subtitle": "Every node runs every kind, and a saga calls each pool on the node that holds it.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "clients",
+       "nodes": [
+        {
+         "id": "load",
+         "label": "saga load",
+         "sub": "a client node",
+         "kind": "client",
+         "items": [
+          "submits orders",
+          "waits for their ends"
+         ]
+        },
+        {
+         "id": "browser",
+         "label": "browser",
+         "sub": "axon's console",
+         "kind": "client"
+        }
+       ]
+      },
+      {
+       "id": "seedg",
+       "nodes": [
+        {
+         "id": "seed",
+         "label": "saga seed",
+         "sub": "seed server",
+         "items": [
+          "who is in the cluster"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "nodes",
+       "label": "Nodes n1, n2, n3",
+       "nodes": [
+        {
+         "id": "n1",
+         "label": "n1",
+         "sub": "saga node",
+         "items": [
+          "saga actor per order",
+          "pool actor per pool",
+          "lease acceptor",
+          "console, metrics"
+         ]
+        },
+        {
+         "id": "n2",
+         "label": "n2",
+         "sub": "saga node",
+         "items": [
+          "saga actor per order",
+          "pool actor per pool",
+          "lease acceptor"
+         ]
+        },
+        {
+         "id": "n3",
+         "label": "n3",
+         "sub": "saga node",
+         "items": [
+          "saga actor per order",
+          "pool actor per pool",
+          "lease acceptor"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "datag",
+       "nodes": [
+        {
+         "id": "data",
+         "label": "data directory",
+         "sub": "shared by the nodes",
+         "kind": "store",
+         "items": [
+          "sagas.db",
+          "inventory.db, payment.db, shipping.db",
+          "leases/n1, leases/n2, leases/n3"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "load",
+     "to": "nodes",
+     "label": "Submit, Wait",
+     "to_dx": -120
+    },
+    {
+     "from": "browser",
+     "to": "n1",
+     "label": "HTTP",
+     "to_dx": 30
+    },
+    {
+     "from": "nodes",
+     "to": "seed",
+     "label": "find peers",
+     "dashed": true,
+     "from_dx": 200,
+     "to_dx": 0
+    },
+    {
+     "from": "nodes",
+     "to": "data",
+     "label": "SQLite, each write\nfenced by the lease epoch"
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "ends",
+   "title": "How 3,000 sagas ended, with n2 killed mid-saga",
+   "subtitle": "saga crash --sagas 3000 --kill-after 1500, release build, at commit 9764f0e.",
+   "note": "Seeds 1 and 2 also each had 1 saga compensated as \"refused before\". No run had a violation.",
+   "unit": "sagas",
+   "categories": [
+    "seed 1",
+    "seed 2",
+    "seed 3"
+   ],
+   "series": [
+    {
+     "name": "done",
+     "values": [
+      1235,
+      1321,
+      1277
+     ]
+    },
+    {
+     "name": "compensated: out of stock or money",
+     "values": [
+      1635,
+      1520,
+      1579
+     ]
+    },
+    {
+     "name": "compensated: injected failure",
+     "values": [
+      129,
+      158,
+      144
+     ]
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "recovery",
+   "title": "From the SIGKILL to the end of the last saga",
+   "subtitle": "The dead node's keys cannot run elsewhere until its 6 s lease ends.",
+   "unit": "s",
+   "categories": [
+    "seed 1",
+    "seed 2",
+    "seed 3"
+   ],
+   "series": [
+    {
+     "name": "9764f0e, eager restart",
+     "values": [
+      "6.35",
+      "6.37",
+      "6.40"
+     ]
+    },
+    {
+     "name": "bfc4dc9, the sweep",
+     "values": [
+      "6.38",
+      "6.41",
+      null
+     ]
+    }
+   ]
+  }
+ ]
+}

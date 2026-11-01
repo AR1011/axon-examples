@@ -1,0 +1,13 @@
+$ node examples/chat/docs/ws.mjs alice=127.0.0.1:9101 bob=127.0.0.1:9103 -- "alice join tea" "bob join tea" "alice post tea hello from n0" "bob post tea hi, I am on n2"
+alice > {"t":"join","room":"tea"}
+alice < {"t":"ready","room":"tea","at":[1791757493057,0]}
+bob > {"t":"join","room":"tea"}
+bob < {"t":"ready","room":"tea","at":[1791757493057,0]}
+alice > {"t":"post","room":"tea","id":1,"text":"hello from n0"}
+alice < {"t":"ack","id":1,"room":"tea","gen":1791757493057,"seq":1}
+bob > {"t":"post","room":"tea","id":1,"text":"hi, I am on n2"}
+bob < {"t":"msg","room":"tea","gen":1791757493057,"first":1,"m":[{"from":"alice","id":1,"text":"hello from n0","ts":1791757493061}]}
+alice < {"t":"msg","room":"tea","gen":1791757493057,"first":1,"m":[{"from":"alice","id":1,"text":"hello from n0","ts":1791757493061}]}
+alice < {"t":"msg","room":"tea","gen":1791757493057,"first":2,"m":[{"from":"bob","id":1,"text":"hi, I am on n2","ts":1791757493061}]}
+bob < {"t":"ack","id":1,"room":"tea","gen":1791757493057,"seq":2}
+bob < {"t":"msg","room":"tea","gen":1791757493057,"first":2,"m":[{"from":"bob","id":1,"text":"hi, I am on n2","ts":1791757493061}]}

@@ -1,0 +1,15 @@
+$ node examples/chat/docs/ws.mjs alice=127.0.0.1:9101 carol=127.0.0.1:9102 -- 'alice join news' 'alice post news one' 'alice post news two' 'alice post news three' 'carol join news $gen,1'
+alice > {"t":"join","room":"news"}
+alice < {"t":"ready","room":"news","at":[1791757500306,0]}
+alice > {"t":"post","room":"news","id":1,"text":"one"}
+alice < {"t":"ack","id":1,"room":"news","gen":1791757500306,"seq":1}
+alice > {"t":"post","room":"news","id":2,"text":"two"}
+alice < {"t":"msg","room":"news","gen":1791757500306,"first":1,"m":[{"from":"alice","id":1,"text":"one","ts":1791757500308}]}
+alice < {"t":"ack","id":2,"room":"news","gen":1791757500306,"seq":2}
+alice < {"t":"msg","room":"news","gen":1791757500306,"first":2,"m":[{"from":"alice","id":2,"text":"two","ts":1791757500309}]}
+alice > {"t":"post","room":"news","id":3,"text":"three"}
+alice < {"t":"ack","id":3,"room":"news","gen":1791757500306,"seq":3}
+carol > {"t":"join","room":"news","after":[1791757500306,1]}
+carol < {"t":"ready","room":"news","at":[1791757500306,1]}
+carol < {"t":"msg","room":"news","gen":1791757500306,"first":2,"m":[{"from":"alice","id":2,"text":"two","ts":1791757500309},{"from":"alice","id":3,"text":"three","ts":1791757500353}]}
+alice < {"t":"msg","room":"news","gen":1791757500306,"first":3,"m":[{"from":"alice","id":3,"text":"three","ts":1791757500353}]}

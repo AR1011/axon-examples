@@ -1,0 +1,9 @@
+{
+  "name": "readme-shots",
+  "private": true,
+  "type": "module",
+  "description": "The screenshots of the example READMEs: node tools/shots/shot.mjs <plan.mjs>",
+  "dependencies": {
+    "playwright": "1.63.0"
+  }
+}

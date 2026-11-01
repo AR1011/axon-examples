@@ -1,0 +1,35 @@
+$ NODE_ID=app-b PORT=23021 KEYS=4 target/release/paxos app
+app-b (app) on 0.0.0.0:23021
+k0 refused: NoCandidate
+k1 refused: NoCandidate
+k2 refused: NoCandidate
+k3 refused: NoCandidate
+k0 refused: Spawn(Isolated, "this node cannot confirm it is still a member")
+k1 refused: Spawn(Isolated, "this node cannot confirm it is still a member")
+k2 refused: Spawn(Isolated, "this node cannot confirm it is still a member")
+k3 refused: Spawn(Isolated, "this node cannot confirm it is still a member")
+k0 refused: Spawn(Ownership, "Unavailable(\"no majority: acceptors are waiting out a restart\")")
+k1 refused: Spawn(Ownership, "Unavailable(\"no majority: acceptors are waiting out a restart\")")
+k2 refused: Spawn(Ownership, "Unavailable(\"no majority: acceptors are waiting out a restart\")")
+k3 refused: Spawn(Ownership, "Unavailable(\"no majority: acceptors are waiting out a restart\")")
+k0 on app-a at epoch 1791758324987900
+k1 on app-b at epoch 1791758324988406
+k2 on app-b at epoch 1791758324988782
+k3 on app-a at epoch 1791758324989088
+# in another terminal: kill -9 app-a
+k0 on app-b at epoch 1791758342212137
+k3 on app-b at epoch 1791758342212696
+# ctrl-c in the terminals of lease-1 and lease-2
+k0 refused: Spawn(Isolated, "this node reaches no majority of the authority")
+k1 refused: Spawn(Isolated, "this node reaches no majority of the authority")
+k2 refused: Spawn(Isolated, "this node reaches no majority of the authority")
+k3 refused: Spawn(Isolated, "this node reaches no majority of the authority")
+# lease-1 started again
+k0 refused: Spawn(Ownership, "Unavailable(\"no majority: acceptors are waiting out a restart\")")
+k1 refused: Spawn(Ownership, "Unavailable(\"no majority: acceptors are waiting out a restart\")")
+k2 refused: Spawn(Ownership, "Unavailable(\"no majority: acceptors are waiting out a restart\")")
+k3 refused: Spawn(Ownership, "Unavailable(\"no majority: acceptors are waiting out a restart\")")
+k0 on app-b at epoch 1791758372214385
+k1 on app-b at epoch 1791758372214946
+k2 on app-b at epoch 1791758372215221
+k3 on app-b at epoch 1791758372215456

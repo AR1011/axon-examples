@@ -1,0 +1,25 @@
+$ ACCOUNTS=300 COMMANDS=200000 cargo run --release -p ledger -- load   # kill -9 ledger-b 5 s in
+load (load) on 127.0.0.1:22220
+300 accounts open
+progress 19774 commands
+progress 41058 commands
+progress 62940 commands
+progress 84827 commands
+progress 106043 commands
+progress 106043 commands
+progress 106104 commands
+progress 115914 commands
+progress 131639 commands
+progress 151589 commands
+progress 172606 commands
+progress 186888 commands
+progress 198799 commands
+200000 commands in 13.1s: 15264/s
+audit passed: 564247 records, 519 owners, 0 bytes fenced, 179579 settled, 1985 refunded
+$ cat host-a.log
+ledger-a (host) on 127.0.0.1:22200
+ledger-a: 0 accounts, 0 fenced, 0 waiting for an audit
+ledger-a: 89 accounts, 0 fenced, 0 waiting for an audit
+ledger-a: 112 accounts, 0 fenced, 0 waiting for an audit
+ledger-a: 146 accounts, 0 fenced, 0 waiting for an audit
+ledger-a: 89 accounts, 0 fenced, 0 waiting for an audit

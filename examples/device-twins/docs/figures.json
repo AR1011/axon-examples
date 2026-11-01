@@ -1,0 +1,283 @@
+{
+ "figures": [
+  {
+   "type": "terminal",
+   "name": "demo",
+   "title": "device-twins demo",
+   "file": "docs/term/demo.txt"
+  },
+  {
+   "type": "terminal",
+   "name": "by-hand",
+   "title": "An alerts node, a twin node, one device and curl",
+   "file": "docs/term/by-hand.txt"
+  },
+  {
+   "type": "terminal",
+   "name": "scale",
+   "title": "device-twins scale 20000 12 1000",
+   "file": "docs/term/scale.txt",
+   "max_lines": 21
+  },
+  {
+   "type": "topology",
+   "name": "topology",
+   "title": "The processes of a scale run",
+   "subtitle": "One twin per device, on one twin node. Its state is in that node's memory.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "clients",
+       "nodes": [
+        {
+         "id": "fleet",
+         "label": "devices",
+         "sub": "the fleet, in scale",
+         "kind": "client",
+         "items": [
+          "one report in flight",
+          "resend every 1 s"
+         ]
+        },
+        {
+         "id": "http",
+         "label": "HTTP client",
+         "sub": "curl, to any node",
+         "kind": "client",
+         "items": [
+          "GET /devices/<id>",
+          "GET /stats"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "twins",
+       "label": "Twin nodes, label role=twin",
+       "nodes": [
+        {
+         "id": "t1",
+         "label": "twin-1",
+         "sub": "twin node",
+         "items": [
+          "UDP ingest",
+          "Twin actor per device",
+          "parking lot",
+          "stream alerts/twin-1"
+         ]
+        },
+        {
+         "id": "t2",
+         "label": "twin-2",
+         "sub": "twin node",
+         "items": [
+          "UDP ingest",
+          "Twin actor per device",
+          "parking lot",
+          "stream alerts/twin-2"
+         ]
+        },
+        {
+         "id": "t3",
+         "label": "twin-3",
+         "sub": "twin node",
+         "items": [
+          "UDP ingest",
+          "Twin actor per device",
+          "parking lot",
+          "stream alerts/twin-3"
+         ]
+        },
+        {
+         "id": "t4",
+         "label": "twin-4",
+         "sub": "joins mid-run",
+         "items": [
+          "no ingest traffic",
+          "Twin actor per device",
+          "parking lot",
+          "stream alerts/twin-4"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "alerts-group",
+       "nodes": [
+        {
+         "id": "alerts",
+         "label": "alerts",
+         "sub": "alerts node, label role=alerts",
+         "kind": "store",
+         "items": [
+          "seed server",
+          "lease acceptor, log on disk",
+          "Listener: follows every alert stream",
+          "alert counts"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "fleet",
+     "to": "twins",
+     "label": "UDP report;\nack once applied",
+     "both": true,
+     "to_dx": -150
+    },
+    {
+     "from": "http",
+     "to": "twins",
+     "label": "HTTP",
+     "to_dx": 150
+    },
+    {
+     "from": "twins",
+     "to": "alerts",
+     "label": "alerts/<node> streams",
+     "from_dx": -80,
+     "to_dx": -60
+    },
+    {
+     "from": "alerts",
+     "to": "twins",
+     "label": "a lease per twin,\nseed discovery",
+     "dashed": true,
+     "from_dx": 60,
+     "to_dx": 80,
+     "both": true
+    }
+   ],
+   "note": "A twin node sends each report to the twin's node, and takes a moved twin's parked state from the old node.",
+   "gap": 84
+  },
+  {
+   "type": "line",
+   "name": "join",
+   "title": "Reports a second while twin-4 joins, 200,000 devices",
+   "subtitle": "100 k reports a second offered. A quarter of the twins move to twin-4.",
+   "unit": "k/s",
+   "axis": "k/s",
+   "x": [
+    "before",
+    "21 s",
+    "22 s",
+    "23 s",
+    "24 s",
+    "25 s",
+    "26 s",
+    "27 s",
+    "after"
+   ],
+   "marks": [
+    "",
+    "twin-4 joins",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "catch-up",
+    ""
+   ],
+   "series": [
+    {
+     "name": "reports applied a second",
+     "values": [
+      "100",
+      "74",
+      "0",
+      "7.6",
+      "8",
+      "29",
+      "71",
+      "160",
+      "100"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "runs",
+   "title": "Reports a second: offered and applied before the join",
+   "subtitle": "Three scale runs. The lighter part of a bar is the range over the seconds before the join.",
+   "unit": "k/s",
+   "axis": "k reports/s",
+   "categories": [
+    "50,000 devices",
+    "200,000 devices",
+    "1,000,000 devices"
+   ],
+   "series": [
+    {
+     "name": "offered",
+     "values": [
+      "25",
+      "100",
+      "200"
+     ]
+    },
+    {
+     "name": "applied",
+     "values": [
+      "25",
+      "100",
+      [
+       "100",
+       "180"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "memory",
+   "title": "Resident memory per actor",
+   "subtitle": "RSS per actor on a node. The lighter part is the range over runs or nodes.",
+   "unit": "KB",
+   "categories": [
+    "plain actor (probe)",
+    "bare keyed actor (probe)",
+    "twin on twin-4, no ingest",
+    "twin on an ingest node, 200 k",
+    "twin on an ingest node, 1 M"
+   ],
+   "series": [
+    {
+     "name": "per actor",
+     "values": [
+      "1.6",
+      "5.2",
+      [
+       "9.3",
+       "9.7"
+      ],
+      {
+       "v": 16,
+       "label": "about 16 KB"
+      },
+      [
+       "13.6",
+       "14.4"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

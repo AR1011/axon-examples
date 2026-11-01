@@ -1,0 +1,12 @@
+$ wf start checkout --id order-1 --input '{"sku":"tea","qty":2,"account":"a1","parcels":[{"to":"Oslo"},{"to":"Bergen"}],"ship_after_s":2}'
+order-1
+$ wf signal order-1 approve --signal-id ok-1 '{}'
+sent "ok-1"
+$ wf get order-1 --wait
+step 1 activity reserve: done
+step 2 activity charge: done
+step 3 signal approve: done
+step 4 sleep: done
+step 5 activity ship: done
+step 6 activity ship: done
+completed: {"labels":[{"to":"Oslo","tracking":"trk-order-1/5"},{"to":"Bergen","tracking":"trk-order-1/6"}],"paid":{"cents":500,"charge":"ch-order-1/2"}}

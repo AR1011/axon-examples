@@ -1,0 +1,365 @@
+{
+ "figures": [
+  {
+   "type": "topology",
+   "name": "topology",
+   "title": "The cluster of scripts/run.sh",
+   "subtitle": "Seven processes. A run's journal is on three history nodes; its actor is on one engine.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "clients",
+       "nodes": [
+        {
+         "id": "browser",
+         "label": "browser",
+         "sub": "the console",
+         "kind": "client"
+        },
+        {
+         "id": "cli",
+         "label": "wf",
+         "sub": "command line",
+         "kind": "client"
+        },
+        {
+         "id": "program",
+         "label": "a program",
+         "sub": "token wft_..",
+         "kind": "client"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "engines",
+       "label": "Engines e1, e2",
+       "nodes": [
+        {
+         "id": "e1",
+         "label": "e1",
+         "sub": "engine, api",
+         "items": [
+          "Run actor per run",
+          "queue partitions",
+          "HTTP API, console"
+         ]
+        },
+        {
+         "id": "e2",
+         "label": "e2",
+         "sub": "engine, api",
+         "items": [
+          "Run actor per run",
+          "queue partitions",
+          "HTTP API, console"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "history",
+       "label": "History nodes h1, h2, h3",
+       "nodes": [
+        {
+         "id": "h1",
+         "label": "h1",
+         "sub": "history, api",
+         "kind": "store",
+         "items": [
+          "journal replica",
+          "Waker: due timers",
+          "lease acceptor, seed"
+         ]
+        },
+        {
+         "id": "h2",
+         "label": "h2",
+         "sub": "history, api",
+         "kind": "store",
+         "items": [
+          "journal replica",
+          "Waker: due timers",
+          "lease acceptor, seed"
+         ]
+        },
+        {
+         "id": "h3",
+         "label": "h3",
+         "sub": "history, api",
+         "kind": "store",
+         "items": [
+          "journal replica",
+          "Waker: due timers",
+          "lease acceptor, seed"
+         ]
+        }
+       ]
+      },
+      {
+       "id": "workers",
+       "label": "Workers w1, w2",
+       "nodes": [
+        {
+         "id": "w1",
+         "label": "w1",
+         "sub": "worker",
+         "items": [
+          "activities"
+         ]
+        },
+        {
+         "id": "w2",
+         "label": "w2",
+         "sub": "worker",
+         "items": [
+          "activities"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "clients",
+     "to": "engines",
+     "label": "HTTP /api"
+    },
+    {
+     "from": "engines",
+     "to": "history",
+     "label": "seal, append, read:\na majority acks",
+     "from_dx": -90,
+     "to_dx": -40
+    },
+    {
+     "from": "history",
+     "to": "engines",
+     "label": "wake\ndue runs",
+     "dashed": true,
+     "from_dx": 90,
+     "to_dx": -10
+    },
+    {
+     "from": "workers",
+     "to": "engines",
+     "label": "poll tasks,\nsend results",
+     "both": true
+    }
+   ],
+   "note": "Every api node serves the API and the console: h1 to h3 too. A run's lease comes from the acceptors on h1 to h3."
+  },
+  {
+   "type": "bars",
+   "name": "load",
+   "title": "1,000 starts a second for 30 s, run A",
+   "subtitle": "Start ack and end time of a run, and the engine's own histograms.",
+   "unit": "ms",
+   "categories": [
+    "one_step, start ack",
+    "one_step, end",
+    "nine_steps, start ack",
+    "nine_steps, end",
+    "a step (wf_step_seconds)",
+    "an open (wf_open_seconds)"
+   ],
+   "series": [
+    {
+     "name": "p50",
+     "values": [
+      50,
+      8,
+      52,
+      74,
+      "8.4",
+      "16.8"
+     ]
+    },
+    {
+     "name": "p99",
+     "values": [
+      86,
+      14,
+      93,
+      126,
+      "16.8",
+      "29.4"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "append",
+   "title": "An append, acked by a majority of three replicas",
+   "subtitle": "100 runs each append every 10 ms. tests/bench.rs, over loopback TCP.",
+   "unit": "ms",
+   "categories": [
+    "on the disk, synced",
+    "on tmpfs"
+   ],
+   "series": [
+    {
+     "name": "p50",
+     "values": [
+      "4.64",
+      "0.15"
+     ]
+    },
+    {
+     "name": "p99",
+     "values": [
+      "6.80",
+      "0.32"
+     ]
+    },
+    {
+     "name": "p99.9",
+     "values": [
+      "19.6",
+      "0.81"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "faults",
+   "title": "p99 in each phase of the fault run",
+   "subtitle": "The lighter part of a bar is the range over three runs. 50 starts a second in all.",
+   "unit": "ms",
+   "max": 700,
+   "categories": [
+    "SIGKILL an engine",
+    "SIGKILL a worker",
+    "SIGKILL a history node",
+    "SIGSTOP an engine for 10 s",
+    "SIGTERM w1, w2, e1, e2 in turn",
+    "stop and start every node"
+   ],
+   "series": [
+    {
+     "name": "start ack",
+     "values": [
+      [
+       52,
+       164
+      ],
+      [
+       69,
+       333
+      ],
+      [
+       136,
+       241
+      ],
+      {
+       "v": [
+        3790,
+        4510
+       ],
+       "label": "3.79 to 4.51 s"
+      },
+      [
+       61,
+       438
+      ],
+      [
+       65,
+       349
+      ]
+     ]
+    },
+    {
+     "name": "nine_steps end",
+     "values": [
+      [
+       82,
+       225
+      ],
+      [
+       110,
+       458
+      ],
+      [
+       193,
+       350
+      ],
+      [
+       96,
+       315
+      ],
+      [
+       98,
+       610
+      ],
+      null
+     ]
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "name": "soak",
+   "title": "The soak: six 10-minute windows at 500 starts a second",
+   "subtitle": "One node killed with SIGKILL in each window, started again 10 s later. 100,000 sleepers in the index.",
+   "unit": "ms",
+   "x": [
+    "window 1",
+    "window 2",
+    "window 3",
+    "window 4",
+    "window 5",
+    "window 6"
+   ],
+   "marks": [
+    "e1 killed",
+    "h3 killed",
+    "w2 killed",
+    "h2 killed",
+    "e2 killed",
+    "e1 killed"
+   ],
+   "series": [
+    {
+     "name": "start ack p99",
+     "values": [
+      169,
+      185,
+      148,
+      889,
+      1458,
+      298
+     ]
+    },
+    {
+     "name": "end p99",
+     "values": [
+      200,
+      273,
+      171,
+      336,
+      1126,
+      363
+     ]
+    }
+   ]
+  },
+  {
+   "type": "terminal",
+   "name": "wf-get",
+   "title": "wf start, signal and get",
+   "file": "docs/term/wf-get.txt"
+  }
+ ]
+}

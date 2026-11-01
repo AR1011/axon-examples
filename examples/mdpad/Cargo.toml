@@ -1,0 +1,39 @@
+[package]
+name = "mdpad"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Example: a collaborative Markdown editor, one keyed actor per document, Yjs updates over compacted streams"
+
+[dependencies]
+axon.workspace = true
+axon-cluster.workspace = true
+axon-net.workspace = true
+axon-obs = { workspace = true, features = ["dashboard", "system-metrics"] }
+axon-stream = { workspace = true, features = ["cluster"] }
+argon2 = "0.5"
+axum = { version = "0.8", default-features = false, features = ["http1", "json", "query", "tokio", "ws"] }
+bytes = "1"
+# The forward edit of a restore or an import: the fewest deletes and inserts from the text to the version.
+dissimilar = "1"
+futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
+# The built page (ui/dist), in the binary.
+include_dir = "0.7"
+# The command line's and the load client's HTTP. No TLS: they talk to a node on a private network.
+reqwest = { version = "0.12", default-features = false, features = ["json"] }
+ring = "0.17"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "net", "signal", "sync"] }
+tokio-tungstenite = "0.30"
+# Pinned with the Yjs version in ui/package.json: the two must agree on the update format (tests/yrs.rs).
+yrs = "=0.28.0"
+
+[dev-dependencies]
+axon-testkit.workspace = true
+tokio = { version = "1", features = ["process", "test-util"] }
+
+[lints]
+workspace = true

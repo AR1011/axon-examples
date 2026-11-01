@@ -1,0 +1,186 @@
+{
+ "figures": [
+  {
+   "type": "terminal",
+   "name": "fault",
+   "title": "fault.sh: the holder paused, killed, and the run log paused",
+   "file": "docs/term/fault.txt"
+  },
+  {
+   "type": "terminal",
+   "name": "runlog",
+   "title": "What the run log and a scheduler node print",
+   "file": "docs/term/runlog.txt"
+  },
+  {
+   "type": "topology",
+   "name": "topology",
+   "title": "The processes of fault.sh",
+   "subtitle": "Four processes on loopback. One scheduler runs at a time, on the node that holds the lease.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "sched",
+       "label": "Scheduler nodes: cron-singleton sched",
+       "nodes": [
+        {
+         "id": "s1",
+         "label": "s1",
+         "sub": "sched",
+         "items": [
+          "keeper: watch_key",
+          "kind cron registered"
+         ]
+        },
+        {
+         "id": "s2",
+         "label": "s2",
+         "sub": "sched, lease acceptor",
+         "items": [
+          "keeper: watch_key",
+          "kind cron registered"
+         ]
+        },
+        {
+         "id": "s3",
+         "label": "s3",
+         "sub": "sched, lease acceptor",
+         "items": [
+          "keeper: watch_key",
+          "Scheduler cron/singleton"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "logg",
+       "nodes": [
+        {
+         "id": "runlog",
+         "label": "runlog",
+         "sub": "cron-singleton runlog",
+         "items": [
+          "RunLogActor, named runlog",
+          "epoch, last tick per job",
+          "seed server",
+          "lease acceptor"
+         ]
+        }
+       ],
+       "x": 270
+      },
+      {
+       "id": "auditg",
+       "nodes": [
+        {
+         "id": "audit",
+         "label": "audit",
+         "sub": "cron-singleton audit",
+         "kind": "client",
+         "items": [
+          "reads runlog.out",
+          "each tick once",
+          "epochs only go up"
+         ]
+        }
+       ],
+       "x": 620
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "s3",
+     "to": "runlog",
+     "label": "Claim(epoch): last tick per job\nFire(epoch, ticks): Fired, Duplicate,\nFenced or Gap",
+     "both": true,
+     "label_dx": 60
+    },
+    {
+     "from": "sched",
+     "to": "runlog",
+     "label": "seed discovery,\nlease rounds",
+     "dashed": true,
+     "both": true,
+     "from_dx": -200,
+     "to_dx": -40,
+     "label_dx": -40
+    },
+    {
+     "from": "runlog",
+     "to": "audit",
+     "label": "stdout:\nCLAIM, FIRE lines"
+    }
+   ],
+   "note": "s3 holds the lease first here. Without ACCEPTORS set, runlog, s1 and s2 are the acceptors. The run log keeps its state in memory."
+  },
+  {
+   "type": "bars",
+   "name": "failover",
+   "title": "From the fault to a new owner's first fire",
+   "subtitle": "Six runs of fault.sh. The lease is 6 s. The lighter part of a bar is the range over the runs.",
+   "unit": "s",
+   "categories": [
+    "SIGSTOP the holder",
+    "kill -9 the holder"
+   ],
+   "series": [
+    {
+     "name": "first fire",
+     "values": [
+      [
+       "5.59",
+       "5.61"
+      ],
+      [
+       "4.28",
+       "4.30"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "late",
+   "title": "How late the latest fire is after its tick",
+   "subtitle": "Six runs of fault.sh. After a failover the missed ticks catch up; a paused run log holds every fire back.",
+   "unit": "s",
+   "categories": [
+    "steady state",
+    "a planned handover",
+    "after a failover",
+    "the run log paused 10 s"
+   ],
+   "series": [
+    {
+     "name": "latest fire",
+     "values": [
+      {
+       "v": 0.001,
+       "label": "1 ms"
+      },
+      {
+       "v": 0.001,
+       "label": "1 ms"
+      },
+      [
+       "3.4",
+       "5.5"
+      ],
+      [
+       "10.3",
+       "11.2"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

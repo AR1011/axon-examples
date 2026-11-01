@@ -1,0 +1,18 @@
+[package]
+name = "paxos"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Example: Paxos leases with acceptors in processes of their own and one actor per key on the apps"
+
+[dependencies]
+axon.workspace = true
+axon-cluster.workspace = true
+axon-net.workspace = true
+bytes = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal", "time"] }
+
+[lints]
+workspace = true

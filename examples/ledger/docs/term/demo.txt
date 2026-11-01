@@ -1,0 +1,11 @@
+$ cargo run --release -p ledger -- demo
+  0.00s  3 hosts and a client up, lease 2s, logs in ledger-data
+  2.29s  300 accounts open with 1000 each, 108 of them on ledger-b
+  2.59s  ledger-b crashed after 6672 commands, 22237/s
+  2.61s  logs hold together mid-crash: 28 debited and not yet credited, 527 in flight
+  4.43s  its 108 accounts answer again elsewhere: median 1.8s, max 1.8s
+  4.43s  ledger-b back, as a new incarnation
+  5.54s  its accounts are back on it, the last after 1.1s
+  5.54s  20000 commands answered in 3.2s: 6163/s, 1072 retries, 2046 sent twice
+  5.56s  every transfer settled
+ 10.30s  audit passed: 57931 records, 519 owners, 0 bytes fenced, 18207 settled, 199 refunded, total 299775 = deposits 320090 - withdrawals 20315

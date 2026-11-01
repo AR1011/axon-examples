@@ -1,0 +1,27 @@
+$ $R edge init hello hello.js
+wrote hello.js: deploy it with `edge deploy hello.js`
+$ $R edge deploy hello.js --name greet --var GREETING=hi
+deployed greet version 1 (seq 13)
+  http://127.0.0.1:22001/w/greet/
+  http://127.0.0.1:22002/w/greet/
+$ curl -i 'localhost:22001/w/greet/?name=you'
+HTTP/1.1 200 OK
+content-type: text/plain;charset=UTF-8
+x-trace-id: 046fc80d911e5a4f
+x-edge-node: r3
+x-edge-version: 1
+content-length: 8
+date: Sun, 11 Oct 2026 22:27:41 GMT
+
+hi, you
+$ $R edge init counter counter.js
+wrote counter.js: deploy it with `edge deploy counter.js --object COUNTER=Counter`
+$ $R edge deploy counter.js --name rooms --object COUNTER=Counter
+deployed rooms version 1 (seq 14)
+  http://127.0.0.1:22001/w/rooms/
+  http://127.0.0.1:22002/w/rooms/
+$ curl -X POST localhost:22001/w/rooms/lobby; curl -X POST localhost:22002/w/rooms/lobby
+{"name":"lobby","count":1}
+{"name":"lobby","count":2}
+$ $R edge objects rooms
+Counter lobby  on r1, epoch 1791757666939405

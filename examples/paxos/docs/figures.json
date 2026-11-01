@@ -1,0 +1,116 @@
+{
+ "figures": [
+  {
+   "type": "terminal",
+   "name": "demo",
+   "title": "paxos demo 1",
+   "file": "docs/term/demo.txt"
+  },
+  {
+   "type": "terminal",
+   "name": "app-b",
+   "title": "app-b, while the other processes are stopped and started",
+   "file": "docs/term/app-b.txt"
+  },
+  {
+   "type": "topology",
+   "name": "topology",
+   "title": "Three acceptors and two apps",
+   "subtitle": "Each key's Owner actor runs on the app that holds its lease. A majority of the acceptors grants a lease.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "apps",
+       "label": "Apps: any id not on ACCEPTORS",
+       "nodes": [
+        {
+         "id": "app-a",
+         "label": "app-a",
+         "sub": "paxos app",
+         "items": [
+          "an Owner per key it holds",
+          "asks for k0..k7 each second"
+         ]
+        },
+        {
+         "id": "app-b",
+         "label": "app-b",
+         "sub": "paxos app",
+         "items": [
+          "an Owner per key it holds",
+          "asks for k0..k7 each second"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "acceptors",
+       "label": "Acceptors: the ids on ACCEPTORS",
+       "nodes": [
+        {
+         "id": "lease-0",
+         "label": "lease-0",
+         "sub": "paxos acceptor",
+         "kind": "store",
+         "items": [
+          "Paxos acceptor",
+          "seed server",
+          "who holds each key",
+          "on disk in LEASE_DIR"
+         ]
+        },
+        {
+         "id": "lease-1",
+         "label": "lease-1",
+         "sub": "paxos acceptor",
+         "kind": "store",
+         "items": [
+          "Paxos acceptor",
+          "seed server",
+          "who holds each key",
+          "on disk in LEASE_DIR"
+         ]
+        },
+        {
+         "id": "lease-2",
+         "label": "lease-2",
+         "sub": "paxos acceptor",
+         "kind": "store",
+         "items": [
+          "Paxos acceptor",
+          "seed server",
+          "who holds each key",
+          "on disk in LEASE_DIR"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "apps",
+     "to": "acceptors",
+     "label": "acquire, renew, release:\na majority grants",
+     "from_dx": -70,
+     "to_dx": -70
+    },
+    {
+     "from": "acceptors",
+     "to": "apps",
+     "label": "the members\n(seed discovery)",
+     "dashed": true,
+     "from_dx": 70,
+     "to_dx": 70
+    }
+   ],
+   "note": "An app finds each key's Owner on the app that holds the key's lease. The acceptors host no actors, so an app's crash never takes a vote away."
+  }
+ ]
+}

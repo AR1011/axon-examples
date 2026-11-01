@@ -1,0 +1,160 @@
+{
+ "figures": [
+  {
+   "type": "topology",
+   "name": "topology",
+   "title": "Three durable nodes of scripts/run.sh",
+   "subtitle": "Each of the 256 shards runs on one node. Its writes go to the Logs of all three; two must sync them.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "clients",
+       "nodes": [
+        {
+         "id": "cli",
+         "label": "redis-cli",
+         "sub": "or go-ycsb, go-redis",
+         "kind": "client"
+        },
+        {
+         "id": "browser",
+         "label": "browser",
+         "sub": "the console page",
+         "kind": "client"
+        }
+       ]
+      },
+      {
+       "id": "consoles",
+       "nodes": [
+        {
+         "id": "console",
+         "label": "kv console",
+         "sub": "a process of its own",
+         "items": [
+          "INFO of each node, 1 s",
+          "an hour of samples",
+          "the runs in results/"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "nodes",
+       "label": "Nodes n1, n2, n3",
+       "nodes": [
+        {
+         "id": "n1",
+         "label": "n1",
+         "sub": "kv node",
+         "kind": "store",
+         "items": [
+          "front end: RESP2",
+          "shard actors, about 85",
+          "Log: WAL, snapshots",
+          "lease acceptor, seed"
+         ]
+        },
+        {
+         "id": "n2",
+         "label": "n2",
+         "sub": "kv node",
+         "kind": "store",
+         "items": [
+          "front end: RESP2",
+          "shard actors, about 85",
+          "Log: WAL, snapshots",
+          "lease acceptor, seed"
+         ]
+        },
+        {
+         "id": "n3",
+         "label": "n3",
+         "sub": "kv node",
+         "kind": "store",
+         "items": [
+          "front end: RESP2",
+          "shard actors, about 85",
+          "Log: WAL, snapshots",
+          "lease acceptor, seed"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {
+     "from": "cli",
+     "to": "nodes",
+     "label": "RESP: any key\nto any node",
+     "to_dx": -150
+    },
+    {
+     "from": "browser",
+     "to": "console",
+     "label": "HTTP"
+    },
+    {
+     "from": "console",
+     "to": "nodes",
+     "label": "INFO",
+     "dashed": true,
+     "to_dx": 150
+    }
+   ]
+  },
+  {
+   "type": "terminal",
+   "name": "redis-cli",
+   "title": "redis-cli against three durable nodes",
+   "file": "docs/term/redis-cli.txt"
+  },
+  {
+   "type": "bars",
+   "name": "memory",
+   "title": "Saturation in memory, ops/s",
+   "subtitle": "Workloads A (50 % writes) and C (reads only), 64 go-ycsb threads, the median of three rounds.",
+   "unit": "ops/s",
+   "categories": [
+    "redis", "redis-io-threads", "kv-memory-1", "redis-cluster-3", "kv-memory-3", "kv stub (front end only)"
+   ],
+   "series": [
+    {"name": "A", "values": [202749, 392661, 307894, 446878, 391588, 465593]},
+    {"name": "C", "values": [206540, 408631, 314694, 455648, 397962, 469398]}
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "durable",
+   "title": "Saturation when each write is synced, ops/s",
+   "subtitle": "Workloads A, B (5 % writes) and C, the median of three rounds.",
+   "unit": "ops/s",
+   "categories": ["redis-aof", "etcd-1", "kv-durable-1", "etcd-3", "kv-durable-3", "kv-durable-3, lease reads"],
+   "series": [
+    {"name": "A", "values": [12791, 7356, 26638, 1473, 15552, 16782]},
+    {"name": "B", "values": [14247, 11841, 138634, 4533, 76339, 146856]},
+    {"name": "C", "values": [206774, 156429, 248536, 130314, 126457, 391699]}
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "tail",
+   "title": "Latency at half the slowest's rate, workload A",
+   "subtitle": "The lighter part of a bar is the range over three rounds. One node at 3,652 to 3,691 ops/s, three at 726 to 743.",
+   "unit": "µs",
+   "max": 30000,
+   "categories": ["redis-aof", "etcd-1", "kv-durable-1", "etcd-3", "kv-durable-3"],
+   "series": [
+    {"name": "p99", "values": [[8727, 8791], [19519, 20047], [4803, 4971], [71935, 73855], [7075, 7315]]},
+    {"name": "p99.9", "values": [[12735, 13839], [25439, 27471], [7779, 8887], [83135, 85247], [11391, 16495]]}
+   ]
+  }
+ ]
+}

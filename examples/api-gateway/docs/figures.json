@@ -1,0 +1,113 @@
+{
+ "figures": [
+  {
+   "type": "topology",
+   "name": "topology",
+   "title": "The cluster of fault.sh",
+   "subtitle": "Six processes on loopback. No state on disk: each backend keeps its order count in memory.",
+   "layers": [
+    {
+     "groups": [
+      {
+       "id": "clients",
+       "nodes": [
+        {"id": "load", "label": "api-gateway load", "sub": "HTTP load", "kind": "client"},
+        {"id": "curl", "label": "curl", "sub": "a client", "kind": "client"},
+        {"id": "browser", "label": "browser", "sub": "axon's console", "kind": "client"}
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "gateways",
+       "label": "Gateways g1, g2",
+       "nodes": [
+        {"id": "g1", "label": "g1", "sub": "gateway", "items": ["HTTP routes, admission", "balancer, retry budget", "console, metrics in memory"]},
+        {"id": "g2", "label": "g2", "sub": "gateway", "items": ["HTTP routes, admission", "balancer, retry budget"]}
+       ]
+      },
+      {
+       "id": "seeds",
+       "nodes": [
+        {"id": "seed", "label": "seed-1", "sub": "SeedServer", "items": ["who is in the cluster"]}
+       ]
+      }
+     ]
+    },
+    {
+     "groups": [
+      {
+       "id": "backends",
+       "label": "Backends b1, b2, b3",
+       "nodes": [
+        {"id": "b1", "label": "b1", "sub": "backend", "items": ["Service actor quote"]},
+        {"id": "b2", "label": "b2", "sub": "backend", "items": ["Service actor quote"]},
+        {"id": "b3", "label": "b3", "sub": "backend", "items": ["Service actor quote", "relay: SIGUSR1 cuts"]}
+       ]
+      }
+     ]
+    }
+   ],
+   "edges": [
+    {"from": "clients", "to": "gateways", "label": "HTTP", "to_dx": 0},
+    {"from": "gateways", "to": "backends", "label": "request_within\nQuoteApi", "to_dx": -60},
+    {"from": "gateways", "to": "seeds", "dashed": true},
+    {"from": "backends", "to": "seeds", "label": "discovery", "dashed": true, "from_dx": 120}
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "latency",
+   "title": "Request latency in each phase of fault.sh",
+   "subtitle": "The independent run. A max near 150 ms is one attempt that timed out.",
+   "unit": "ms",
+   "max": 80,
+   "categories": ["stop b2, 64 at once", "partition b3, 64 at once", "overload, 4096 at once"],
+   "series": [
+    {"name": "p50", "values": ["0.46", "0.49", "14.85"]},
+    {"name": "p99", "values": ["0.85", "1.38", "45.05"]},
+    {"name": "p99.9", "values": ["1.38", "4.61", "75.78"]},
+    {"name": "max", "values": ["151.7", "151.6", "163.9"]}
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "throughput",
+   "title": "Requests a second in each phase of fault.sh",
+   "subtitle": "Two runs of the same script. In the overload phase, the requests offered, refused ones too.",
+   "unit": "requests/s",
+   "axis": "requests a second",
+   "categories": ["stop b2", "partition b3", "overload (offered)"],
+   "series": [
+    {"name": "builder's run", "values": ["130,516", "132,000", "277,633"]},
+    {"name": "independent run", "values": [135760, 121351, 251667]}
+   ]
+  },
+  {
+   "type": "bars",
+   "name": "overload",
+   "title": "How the overload phase ended",
+   "subtitle": "The independent run: 4096 requests at once for 10 s. Refused at once, not queued.",
+   "unit": "requests",
+   "categories": ["200: answered", "429: a gateway at its limit", "503: backends full", "504: past the deadline", "hung"],
+   "series": [
+    {"name": "requests", "values": [1122311, 532534, 874453, 0, 0]}
+   ]
+  },
+  {
+   "type": "terminal",
+   "name": "cut",
+   "title": "Load on both gateways while b3 is cut off",
+   "file": "docs/term/cut.txt",
+   "max_lines": 30
+  },
+  {
+   "type": "terminal",
+   "name": "try",
+   "title": "A read, a write, a deadline and the gateway's counters",
+   "file": "docs/term/try.txt"
+  }
+ ]
+}

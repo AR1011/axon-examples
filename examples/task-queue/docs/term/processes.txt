@@ -1,0 +1,15 @@
+$ task-queue produce 3000
+enqueued 3000 in 0.01s, held back 0 times by a full queue
+$ kill -9 <pid of worker-2>
+$ sleep 8; task-queue status | jq -c '.Status.queues | to_entries[] | {queue: .key} + .value'
+{"queue":"email","pending":0,"delayed":0,"running":0,"done":999,"dead":1}
+{"queue":"reports","pending":0,"delayed":0,"running":0,"done":999,"dead":1}
+{"queue":"webhooks","pending":0,"delayed":0,"running":0,"done":999,"dead":1}
+$ task-queue status | jq -c '.Status.workers | to_entries[] | {worker: .key} + .value'
+{"worker":"worker-1","running":0,"done":1249,"failed":115,"lost":0}
+{"worker":"worker-2","running":0,"done":624,"failed":32,"lost":8}
+{"worker":"worker-3","running":0,"done":1124,"failed":87,"lost":0}
+$ task-queue dead | jq -c '.Views[] | {queue, state, failures, last_error}'
+{"queue":"webhooks","state":"Dead","failures":3,"last_error":"panicked: planned panic 3"}
+{"queue":"email","state":"Dead","failures":3,"last_error":"planned failure 3"}
+{"queue":"reports","state":"Dead","failures":3,"last_error":"planned failure 3"}

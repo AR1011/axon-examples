@@ -1,0 +1,13 @@
+$ target/release/device-twins demo
+  1.02s  alerts node and 3 twin nodes up; alerts follows twin-1 twin-2 twin-3
+  6.01s  20000 devices sent 8 readings each over UDP in 5.0s: 160000 acked, 22685 resent
+  6.45s  every twin holds exactly what its device had acked, on its rendezvous owner: {"twin-1": 6735, "twin-2": 6656, "twin-3": 6609}
+  6.65s  the alerts node got exactly the 1567 raises and clears the rule gives
+  8.45s  fleet quiet: 34161 idle stops within 1.8s, and all 20000 states parked
+  8.46s  GET /devices/<id> on each node answers from the parked state, e.g. {"device":8,"node":"twin-3","epoch":3,"last_seq":8,"reports":8,"duplicates":0,"gaps":0,"temperature":21.5,"min":20.5,"max":92.0,"mean":56.0,"readings":8,"alert":false,"raised":1,"cleared":1}
+  8.96s  twin-4 joined while the fleet reports
+ 12.34s  round two done in 3.9s
+ 12.47s  every twin again exact and on its owner among four: {"twin-1": 5026, "twin-2": 5012, "twin-3": 4997, "twin-4": 4965}
+ 12.47s  46739 twin starts took parked state, 4965 of them from another node; none started empty
+ 12.67s  alerts still exact across the stop, the restart and the move: 4064
+ 12.67s  nothing lost: no gaps, nothing dropped from parking; 0 resent reports dropped as duplicates

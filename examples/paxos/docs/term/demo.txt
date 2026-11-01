@@ -1,0 +1,10 @@
+$ target/release/paxos demo 1
+  0.01s  3 acceptors and 2 apps up, lease 1s; the acceptors warm up for a little over one lease
+  1.25s  placed  app-a: k0 k3 k4 k5 k7, app-b: k1 k2 k6
+  1.25s  app-a crashed
+  2.26s  moved   app-b: k0 k1 k2 k3 k4 k5 k6 k7 in 1.0s, once app-a's leases ran out
+  4.26s  lease-1 and lease-2 stopped: no majority
+  4.58s  every actor stopped in 314.9ms, before its lease could be granted again
+  4.58s  k0 refused: Spawn(Isolated, "this node reaches no majority of the authority")
+  4.58s  lease-1 back, as a new process with the same id; it warms up first
+  5.81s  placed  app-b: k0 k1 k2 k3 k4 k5 k6 k7
